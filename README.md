@@ -50,7 +50,7 @@ Menjelaskan urutan pertukaran pesan antara komponen **User**, **Web Interface** 
 
 ## 5. Mock-Up
 
-Tampilan antarmuka (UI) pada aplikasi **Calcon (Karya SuperApp)** dirancang dengan tema *Dark Elegant* menggunakan kombinasi warna Slate dan gradasi biru-cyan untuk memberikan kesan profesional dan modern.
+Tampilan antarmuka (UI) pada aplikasi **Calcon** dirancang dengan tema *Dark Elegant* menggunakan kombinasi warna Slate dan gradasi biru-cyan untuk memberikan kesan profesional dan modern.
 
 ### a. Tampilan Login & Register
 Halaman autentikasi menggunakan tata letak *split-screen*. Sisi kiri menampilkan branding visual dengan gradasi linear, sementara sisi kanan berisi kartu login/register yang bersih dengan input field yang responsif.
