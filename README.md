@@ -1,6 +1,6 @@
 # Dokumentasi Project - Calcon
 
-**Nama:** [Isi Nama Anda] | **Kelas:** [Isi Kelas] | **NPM:** [Isi NPM]
+**Nama:** Raffelino Hizkia Marbun | **Kelas:** II RKS A | **NPM:** 2423102065
 
 ## 1. Deskripsi
 **Calcon** adalah aplikasi web multifungsi (SuperApp) yang menggabungkan fitur kalkulator ilmiah dan konverter satuan profesional dalam satu platform. Aplikasi ini dirancang untuk memberikan kemudahan bagi pengguna dalam melakukan perhitungan matematis kompleks maupun konversi berbagai satuan internasional secara cepat, akurat, dan terintegrasi dengan sistem penyimpanan riwayat berbasis database.
