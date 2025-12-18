@@ -57,17 +57,17 @@ Halaman autentikasi menggunakan tata letak *split-screen*. Sisi kiri menampilkan
 
 ![Login & Register](./images/Login.png)
 
-### b. Tampilan Dashboard (Kalkulator Ilmiah)
+### b. Kalkulator Ilmiah
 Panel utama kalkulator menampilkan *display* digital yang besar di bagian atas, diikuti oleh baris kontrol memori dan mode (DEG/RAD). *Grid* tombol diatur secara presisi untuk memisahkan fungsi matematika dasar, fungsi ilmiah, dan operator.
 
-![Kalkulator Dashboard](./images/Dashboard.png)
+![Kalkulator Dashboard](./images/Kalkulator.png)
 
 ### c. Tampilan Unit Converter
 Antarmuka konverter menggunakan sistem kartu ganda (Input & Result) dengan ikon *swap* di tengahnya. Terdapat selektor kategori di bagian atas yang memungkinkan pengguna berpindah antar satuan (Panjang, Suhu, Kecepatan, dll) dengan transisi yang halus.
 
-![Unit Converter](./images/Converter.png)
+![Unit Converter](./images/Konventer.png)
 
 ### d. Tampilan Riwayat Aktivitas
 Tabel riwayat terletak di bagian bawah dashboard, menampilkan daftar kronologis aktivitas pengguna. Setiap baris mencatat operasi matematika atau hasil konversi beserta *timestamp* waktu yang diambil langsung dari database.
 
-![Riwayat Aktivitas](./images/History.png)
+![Riwayat Aktivitas](./images/Riwayat.png)
