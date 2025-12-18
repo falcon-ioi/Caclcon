@@ -36,7 +36,7 @@ Sebagai user, saya ingin:
 Diagram ini menggambarkan interaksi pengguna dengan sistem Calcon, mulai dari proses autentikasi hingga penggunaan fitur utama kalkulator dan konverter yang datanya tersimpan ke dalam sistem.
 
 ![Use Case Diagram](./images/UseCase_Diagram.png) 
-*(Catatan: Pastikan Anda mengunggah gambar diagram ke folder images)*
+
 
 ### b. Activity Diagram
 Menggambarkan alur aktivitas saat pengguna melakukan perhitungan: dimulai dari pengecekan login, penginputan data pada kalkulator/konverter, proses validasi logika oleh sistem, hingga penyimpanan otomatis ke database riwayat.
