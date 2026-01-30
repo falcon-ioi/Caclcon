@@ -18,7 +18,7 @@
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:title" content="@yield('title', 'E-Concalc - Kalkulator Elektronik Modern')">
     <meta property="og:description" content="@yield('meta_description', 'Aplikasi kalkulator elektronik modern dengan fitur lengkap: kalkulator ilmiah, konversi mata uang, perencanaan keuangan, dan pelacak kesehatan.')">
-    <meta property="og:image" content="{{ asset('logo.png') }}">
+    <meta property="og:image" content="{{ asset('images/logo.png') }}">
     <meta property="og:locale" content="id_ID">
     <meta property="og:site_name" content="E-Concalc">
     
@@ -26,7 +26,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="@yield('title', 'E-Concalc - Kalkulator Elektronik Modern')">
     <meta name="twitter:description" content="@yield('meta_description', 'Aplikasi kalkulator elektronik modern dengan fitur lengkap.')">
-    <meta name="twitter:image" content="{{ asset('logo.png') }}">
+    <meta name="twitter:image" content="{{ asset('images/logo.png') }}">
     
     <!-- Theme & PWA -->
     <meta name="theme-color" content="#4facfe">
@@ -48,9 +48,9 @@
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     
     <!-- Favicon & Icons -->
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('logo.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('logo.png') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('logo.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/logo.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/logo.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/logo.png') }}">
     
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">

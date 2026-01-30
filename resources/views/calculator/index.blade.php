@@ -5,7 +5,7 @@
 @section('styles')
 <meta name="theme-color" content="#4facfe">
 <meta name="description" content="E-Concalc - Kalkulator ilmiah, konverter satuan, mata uang, finansial, dan kesehatan">
-<link rel="apple-touch-icon" href="{{ asset('logo.png') }}">
+<link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
     .saved-plans { margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; }

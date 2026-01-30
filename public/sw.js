@@ -10,7 +10,7 @@ const STATIC_ASSETS = [
     '/js/financial.js',
     '/js/health.js',
     '/js/currency.js',
-    '/logo.png',
+    '/images/logo.png',
     '/manifest.json',
     'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap'
 ];
@@ -217,8 +217,8 @@ self.addEventListener('push', event => {
         const data = event.data.json();
         const options = {
             body: data.body || 'Notifikasi dari E-Concalc',
-            icon: '/logo.png',
-            badge: '/logo.png',
+            icon: '/images/logo.png',
+            badge: '/images/logo.png',
             vibrate: [100, 50, 100],
             data: {
                 url: data.url || '/'

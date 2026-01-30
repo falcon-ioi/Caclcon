@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/ecalc-banner.png" alt="E-Concalc Banner" width="100%">
+  <img src="public/images/ecalc-banner.png" alt="E-Concalc Banner" width="100%">
 </p>
 
 # E-Concalc - Electronic Calculator
