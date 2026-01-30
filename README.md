@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="public/ecalc-banner.png" alt="ECalc Banner" width="100%">
+  <img src="public/ecalc-banner.png" alt="E-Concalc Banner" width="100%">
 </p>
 
-# ECalc - Electronic Calculator
+# E-Concalc - Electronic Calculator
 
-ECalc is a modern, powerful, and sleek calculator web application built with **Laravel**. It provides a premium user experience with advanced calculation features and a beautiful interface.
+E-Concalc is a modern, powerful, and sleek calculator web application built with **Laravel**. It provides a premium user experience with advanced calculation features and a beautiful interface.
 
 ## 🚀 Features
 
