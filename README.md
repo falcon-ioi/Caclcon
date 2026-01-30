@@ -70,6 +70,104 @@ Dengan antarmuka **Dark Mode** yang premium dan responsif, E-Concalc memberikan 
 
 ---
 
+## 📊 UML Diagrams
+
+### Use Case Diagram
+```mermaid
+useCaseDiagram
+    actor User
+    actor Admin
+    
+    package E-Concalc {
+        usecase "Login / Register" as UC1
+        usecase "Scientific Calculation" as UC2
+        usecase "Unit Conversion" as UC3
+        usecase "Financial Planning" as UC4
+        usecase "Health Tracking" as UC5
+        usecase "View History" as UC7
+    }
+
+    User --> UC1
+    User --> UC2
+    User --> UC3
+    User --> UC4
+    User --> UC5
+    User --> UC7
+```
+
+### Activity Diagram - Financial Planning
+```mermaid
+activityDiagram
+    start
+    :Select Financial Tab;
+    :Choose Calculation Type (Compound Interest);
+    :Input Principal, Rate, Time;
+    if (Input Valid?) then (Yes)
+        :Calculate Result;
+        :Display Projection;
+        if (User clicks Save?) then (Yes)
+            :Save to Database;
+            :Show Toast Notification;
+        else (No)
+        endif
+    else (No)
+        :Show Validation Error;
+    endif
+    stop
+```
+
+### Sequence Diagram - Save Plan
+```mermaid
+sequenceDiagram
+    actor User
+    participant View as UI
+    participant Controller as FinancialController
+    participant Model as FinancialPlan
+    participant DB as Database
+
+    User->>View: Input Data & Click Save
+    View->>Controller: POST /save-plan
+    Controller->>Controller: Validate Input
+    Controller->>Model: Create New Plan
+    Model->>DB: Insert Record
+    DB-->>Model: Success
+    Model-->>Controller: Return Object
+    Controller-->>View: Return JSON Success
+    View-->>User: Show "Plan Saved" Toast
+```
+
+### ERD (Entity Relationship)
+```mermaid
+erDiagram
+    USERS ||--o{ FINANCIAL_PLANS : has
+    USERS ||--o{ HEALTH_LOGS : has
+    
+    USERS {
+        int id PK
+        string name
+        string email
+        string password
+    }
+    
+    FINANCIAL_PLANS {
+        int id PK
+        int user_id FK
+        string title
+        string type
+        text data
+    }
+    
+    HEALTH_LOGS {
+        int id PK
+        int user_id FK
+        string type
+        float value
+        date created_at
+    }
+```
+
+---
+
 ## 🎨 Mock-Up / Screenshots
 
 ### 1. Halaman Login
