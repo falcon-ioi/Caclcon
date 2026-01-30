@@ -14,7 +14,21 @@ E-Concalc is a modern, powerful, and sleek calculator web application built with
 -   **Responsive Design**: optimized for desktop, tablet, and mobile devices.
 -   **Dark Mode**: A visually stunning dark theme for comfortable usage.
 
-## 🛠️ Tech Stack
+## � Screenshots
+
+| Login Page | Calculator |
+|:---:|:---:|
+| <img src="public/images/screenshot-login.png" width="400" alt="Login Page"> | <img src="public/images/screenshot-calculator.png" width="400" alt="Calculator Page"> |
+
+| Unit Converter | Financial Calculator |
+|:---:|:---:|
+| <img src="public/images/screenshot-converter.png" width="400" alt="Converter Page"> | <img src="public/images/screenshot-financial.png" width="400" alt="Financial Page"> |
+
+| Currency Converter | Health Calculator |
+|:---:|:---:|
+| <img src="public/images/screenshot-currency.png" width="400" alt="Currency Page"> | <img src="public/images/screenshot-health.png" width="400" alt="Health Page"> |
+
+## �🛠️ Tech Stack
 
 -   **Backend**: Laravel (PHP)
 -   **Frontend**: Blade Templates, Vanilla CSS / JavaScript
