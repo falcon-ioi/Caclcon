@@ -104,28 +104,161 @@ flowchart LR
     Guest --> UC4
 ```
 
-### Activity Diagram - Financial Planning
+### Activity Diagram - Main Application Flow
+```mermaid
+flowchart TD
+    A([Start]) --> B[Open E-Concalc]
+    B --> C{User Status?}
+    
+    C -->|Guest| D[Access Calculator/Converter]
+    C -->|Login| E[Google OAuth]
+    E --> F{Auth Success?}
+    F -->|Yes| G[Full Access - All Features]
+    F -->|No| D
+    
+    D --> H[Use Features]
+    G --> H
+    
+    H --> I{Select Tab}
+    I -->|Calculator| J[Scientific Calculator]
+    I -->|Converter| K[Unit Converter]
+    I -->|Currency| L[Currency Converter]
+    I -->|Financial| M[Financial Calculator]
+    I -->|Health| N[Health Calculator]
+    
+    J --> O([End])
+    K --> O
+    L --> O
+    M --> O
+    N --> O
+```
+
+### Activity Diagram - Scientific Calculator
+```mermaid
+flowchart TD
+    A([Start]) --> B[Open Calculator Tab]
+    B --> C[Enter Expression]
+    C --> D{Use Scientific Function?}
+    
+    D -->|Yes| E[Select Function - sin/cos/log/etc]
+    D -->|No| F[Basic Operation]
+    
+    E --> G[Calculate Result]
+    F --> G
+    
+    G --> H[Display Result]
+    H --> I{Use Memory?}
+    
+    I -->|M+| J[Add to Memory]
+    I -->|MR| K[Recall Memory]
+    I -->|MC| L[Clear Memory]
+    I -->|No| M{Continue?}
+    
+    J --> M
+    K --> C
+    L --> M
+    
+    M -->|Yes| C
+    M -->|No| N([End])
+```
+
+### Activity Diagram - Unit Converter
+```mermaid
+flowchart TD
+    A([Start]) --> B[Open Converter Tab]
+    B --> C[Select Category]
+    C --> D[Choose From Unit]
+    D --> E[Choose To Unit]
+    E --> F[Enter Value]
+    F --> G[Auto Calculate]
+    G --> H[Display Result]
+    H --> I{Swap Units?}
+    
+    I -->|Yes| J[Swap From/To]
+    J --> G
+    
+    I -->|No| K{New Conversion?}
+    K -->|Yes| C
+    K -->|No| L([End])
+```
+
+### Activity Diagram - Currency Converter
+```mermaid
+flowchart TD
+    A([Start]) --> B[Open Currency Tab]
+    B --> C[Fetch Live Rates]
+    C --> D{API Success?}
+    
+    D -->|Yes| E[Display Last Update Time]
+    D -->|No| F[Show Error / Use Cache]
+    
+    E --> G[Select From Currency]
+    F --> G
+    G --> H[Select To Currency]
+    H --> I[Enter Amount]
+    I --> J[Calculate with Live Rate]
+    J --> K[Display Converted Amount]
+    
+    K --> L{Refresh Rates?}
+    L -->|Yes| C
+    L -->|No| M([End])
+```
+
+### Activity Diagram - Financial Calculator
 ```mermaid
 flowchart TD
     A([Start]) --> B[Open Financial Tab]
-    B --> C[Select Calculation Type]
-    C --> D[Enter Parameters]
-    D --> E{Valid Input?}
+    B --> C[Select Type]
+    C --> D{Which Type?}
     
-    E -->|Yes| F[Calculate & Display Result]
-    F --> G{Save?}
+    D -->|Simple Interest| E[Enter Principal, Rate, Time]
+    D -->|Compound Interest| F[Enter Principal, Rate, Time, Frequency]
+    D -->|Loan/Installment| G[Enter Loan, Rate, Tenure]
+    D -->|Discount| H[Enter Price, Discount %]
     
-    G -->|Yes| H{Authenticated?}
-    H -->|Yes| I[Save to Database]
-    I --> J[Show Success Message]
-    J --> K([End])
+    E --> I[Calculate & Display]
+    F --> I
+    G --> I
+    H --> I
     
-    H -->|No| L[Redirect to Login]
-    L --> K
+    I --> J{Save Plan?}
+    J -->|Yes| K{Authenticated?}
+    K -->|Yes| L[Save to Database]
+    L --> M[Show Success]
+    K -->|No| N[Prompt Login]
     
-    G -->|No| K
-    E -->|No| M[Show Error]
-    M --> D
+    J -->|No| O([End])
+    M --> O
+    N --> O
+```
+
+### Activity Diagram - Health Calculator
+```mermaid
+flowchart TD
+    A([Start]) --> B[Open Health Tab]
+    B --> C[Select Unit System]
+    C --> D{Metric or Imperial?}
+    
+    D -->|Metric| E[Enter Weight in kg, Height in cm]
+    D -->|Imperial| F[Enter Weight in lbs, Height in inches]
+    
+    E --> G[Calculate BMI]
+    F --> G
+    
+    G --> H[Display BMI Value]
+    H --> I[Show Category - Underweight/Normal/Overweight/Obese]
+    I --> J[Calculate Ideal Weight]
+    J --> K[Display Recommendation]
+    
+    K --> L{Save Log?}
+    L -->|Yes| M{Authenticated?}
+    M -->|Yes| N[Save to Health Logs]
+    N --> O[Show Success]
+    M -->|No| P[Prompt Login]
+    
+    L -->|No| Q([End])
+    O --> Q
+    P --> Q
 ```
 
 ### Sequence Diagram - Save Financial Plan
