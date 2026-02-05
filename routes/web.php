@@ -4,8 +4,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CalculatorController;
 use Illuminate\Support\Facades\Route;
 
-// Auth routes (guest only)
-Route::middleware('guest')->group(function () {
+// Auth routes (guest only) - Rate limited to prevent brute force
+Route::middleware(['guest', 'throttle:10,1'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
