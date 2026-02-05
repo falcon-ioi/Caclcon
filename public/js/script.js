@@ -492,86 +492,6 @@ function swapUnits() {
     convert();
 }
 
-// --- Voice Command Implementation ---
-function initVoiceCommand() {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        console.log('Web Speech API not supported');
-        const micBtn = document.getElementById('micBtn');
-        if (micBtn) micBtn.style.display = 'none';
-        return;
-    }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-
-    recognition.continuous = false;
-    recognition.lang = 'id-ID';
-    recognition.interimResults = false;
-
-    const micBtn = document.getElementById('micBtn');
-    const display = document.getElementById('calc-display'); // Correct ID
-
-    if (micBtn) {
-        micBtn.addEventListener('click', () => {
-            if (micBtn.classList.contains('listening')) {
-                recognition.stop();
-            } else {
-                recognition.start();
-            }
-        });
-    }
-
-    recognition.onstart = () => {
-        if (micBtn) micBtn.classList.add('listening');
-        // Assuming showToast exists or fallback
-        console.log('Mendengarkan...');
-    };
-
-    recognition.onend = () => {
-        if (micBtn) micBtn.classList.remove('listening');
-    };
-
-    recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript.toLowerCase();
-        console.log('Suara:', transcript);
-        processVoiceCommand(transcript);
-    };
-
-    function processVoiceCommand(text) {
-        let mathExpression = text
-            .replace(/ditambah|tambah|plus/g, '+')
-            .replace(/dikurang|kurang|minus/g, '-')
-            .replace(/dikali|kali/g, '*')
-            .replace(/dibagi|bagi/g, '/')
-            .replace(/koma/g, '.')
-            .replace(/persen/g, '/100')
-            .replace(/sama dengan/g, '')
-            .replace(/[^0-9+\-*/().]/g, '');
-
-        if (mathExpression) {
-            try {
-                const result = new Function('return ' + mathExpression)();
-                if (display) display.value = result;
-                if (typeof currentInput !== 'undefined') currentInput = result.toString();
-
-                speakResult('Hasilnya ' + result);
-
-                if (window.isAuthenticated && typeof saveHistory === 'function') {
-                    saveHistory(mathExpression + ' (Suara)'); // Removed result arg as saveHistory takes one arg usually
-                }
-            } catch (e) {
-                console.error(e);
-            }
-        }
-    }
-
-    function speakResult(text) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'id-ID';
-        window.speechSynthesis.speak(utterance);
-    }
-}
-
 // --- Auto Theme Logic ---
 function initAutoTheme() {
     const setTheme = (isDark) => {
@@ -597,7 +517,6 @@ function initAutoTheme() {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    initVoiceCommand();
     initAutoTheme();
 });
 
