@@ -27,7 +27,7 @@ Dengan antarmuka **Dark Mode** yang premium dan responsif, E-Concalc memberikan 
 - **Styling:** Vanilla CSS (Modern Dark UI)
 - **Database:** MySQL 8.0
 - **Auth:** Google OAuth (Laravel Socialite) + Custom Guard
-- **Server:** Apache (XAMPP)
+- **Server:** Laravel Development Server (`php artisan serve`) + XAMPP (MySQL)
 
 ---
 
