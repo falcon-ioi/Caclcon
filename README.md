@@ -84,12 +84,14 @@ flowchart LR
     end
     
     subgraph E-Concalc["📱 E-Concalc System"]
-        UC1["🔐 Login Google / Guest"]
+        UC1["🔐 Login Google"]
         UC2["🔢 Scientific Calculation"]
         UC3["🗣️ Voice Command"]
-        UC4["💰 Financial Planning"]
-        UC5["❤️ Health Tracking"]
-        UC6["💾 Save History"]
+        UC4["📐 Unit Conversion"]
+        UC5["💱 Currency Conversion"]
+        UC6["💰 Financial Planning"]
+        UC7["❤️ Health Tracking"]
+        UC8["💾 Save History/Plans"]
     end
 
     User --> UC1
@@ -98,50 +100,83 @@ flowchart LR
     User --> UC4
     User --> UC5
     User --> UC6
+    User --> UC7
+    User --> UC8
     
     Guest --> UC2
     Guest --> UC3
+    Guest --> UC4
+        Guest --> UC5
 ```
 
 ### Activity Diagram - Financial Planning
 ```mermaid
 flowchart TD
     A(["🚀 Start"]) --> B["📂 Select Financial Tab"]
-    B --> C["📊 Choose Calculation Type"]
-    C --> D["✏️ Input Principal, Rate, Time"]
+    B --> C["📊 Choose Type (Simple/Compound/Loan)"]
+    C --> D["✏️ Input Parameters"]
     D --> E{"✅ Input Valid?"}
     
-    E -->|Yes| F["🔢 Calculate Result"]
-    F --> G["📈 Display Projection"]
-    F --> H{"💾 User clicks Save?"}
+    E -->|Yes| F["🔢 Calculate Result & Show UI"]
+    F --> G{"💾 User clicks Save?"}
     
-    H -->|Yes| I{"🔐 Is Authenticated?"}
-    I -->|Yes| J["💿 Save to Database"]
-    I -->|No| K["🔒 Prompt Login"]
+    G -->|Yes| H{"🔐 Is Authenticated?"}
+    H -->|Yes| I["📡 AJAX Post to /financial/save"]
+    I --> J{"✅ Server Success?"}
+    J -->|Yes| K["🔔 Show 'Saved' Toast"]
+    J -->|No| L["⚠️ Show Error"]
     
-    J --> L(["🏁 End"])
-    E -->|No| M["⚠️ Show Validation Error"]
-    M --> D
+    H -->|No| M["🔒 Redirect to Login"]
+    
+    G -->|No| N(["🏁 End"])
+    E -->|No| O["⚠️ Show Validation Error"]
+    O --> D
+```
+
+### Sequence Diagram - Save Financial Plan
+```mermaid
+sequenceDiagram
+    actor User
+    participant View as UI (Blade/JS)
+    participant Route as Web Routes
+    participant Controller as FinancialController
+    participant Model as FinancialPlan
+    participant DB as Database
+
+    User->>View: Input Data & Click Save
+    View->>View: Client-side Validation
+    View->>Route: POST /financial/save
+    Route->>Controller: saveFinancialPlan(Request)
+    Controller->>Controller: Validate & Auth Check
+    Controller->>Model: Create([user_id, title, data])
+    Model->>DB: INSERT INTO financial_plans
+    DB-->>Model: ID created
+    Model-->>Controller: Plan Object
+    Controller-->>View: JSON Response {success: true}
+    View-->>User: Show Toast "Berhasil Disimpan"
+    View->>View: Reload Page (Update List)
 ```
 
 ### ERD (Entity Relationship Diagram)
 ```mermaid
 erDiagram
-    USERS ||--o{ FINANCIAL_PLANS : has
-    USERS ||--o{ HEALTH_LOGS : has
-    USERS ||--o{ RIWAYAT_AKTIVITAS : has
+    USERS ||--o{ FINANCIAL_PLANS : manages
+    USERS ||--o{ HEALTH_LOGS : tracks
+    USERS ||--o{ SESSIONS : has
     
     USERS {
-        int id PK
+        bigint id PK
         string name
         string email
-        string google_id
+        string google_id UK
+        string password
+        remember_token token
         timestamp created_at
     }
     
     FINANCIAL_PLANS {
-        int id PK
-        int user_id FK
+        bigint id PK
+        bigint user_id FK
         string title
         string type
         json data
@@ -149,12 +184,22 @@ erDiagram
     }
     
     HEALTH_LOGS {
-        int id PK
-        int user_id FK
+        bigint id PK
+        bigint user_id FK
         float weight
         float height
         float bmi
         string category
+        timestamp created_at
+    }
+    
+    SESSIONS {
+        string id PK
+        bigint user_id FK
+        string ip_address
+        text user_agent
+        text payload
+        int last_activity
     }
 ```
 
