@@ -73,24 +73,24 @@ Dengan antarmuka **Dark Mode** yang premium dan responsif, E-Concalc memberikan 
 
 ---
 
-## 📊 UML Diagrams
+## UML Diagrams
 
 ### Use Case Diagram
 ```mermaid
 flowchart LR
     subgraph Actors
-        User(("👤 User"))
-        Guest(("👤 Guest"))
+        User((User))
+        Guest((Guest))
     end
     
-    subgraph E-Concalc["📱 E-Concalc System"]
-        UC1["🔐 Login Google"]
-        UC2["🔢 Scientific Calculation"]
-        UC3["📐 Unit Conversion"]
-        UC4["💱 Currency Conversion"]
-        UC5["💰 Financial Planning"]
-        UC6["❤️ Health Tracking"]
-        UC7["💾 Save History/Plans"]
+    subgraph System[E-Concalc System]
+        UC1[Login with Google]
+        UC2[Scientific Calculator]
+        UC3[Unit Converter]
+        UC4[Currency Converter]
+        UC5[Financial Calculator]
+        UC6[Health Calculator]
+        UC7[Save Data]
     end
 
     User --> UC1
@@ -109,65 +109,56 @@ flowchart LR
 ### Activity Diagram - Financial Planning
 ```mermaid
 flowchart TD
-    A(["🚀 Start"]) --> B["📂 Select Financial Tab"]
-    B --> C["📊 Choose Type (Simple/Compound/Loan)"]
-    C --> D["✏️ Input Parameters"]
-    D --> E{"✅ Input Valid?"}
+    A([Start]) --> B[Open Financial Tab]
+    B --> C[Select Calculation Type]
+    C --> D[Enter Parameters]
+    D --> E{Valid Input?}
     
-    E -->|Yes| F["🔢 Calculate Result & Show UI"]
-    F --> G{"💾 User clicks Save?"}
+    E -->|Yes| F[Calculate & Display Result]
+    F --> G{Save?}
     
-    G -->|Yes| H{"🔐 Is Authenticated?"}
-    H -->|Yes| I["📡 AJAX Post to /financial/save"]
-    I --> J{"✅ Server Success?"}
-    J -->|Yes| K["🔔 Show 'Saved' Toast"]
-    J -->|No| L["⚠️ Show Error"]
+    G -->|Yes| H{Authenticated?}
+    H -->|Yes| I[Save to Database]
+    I --> J[Show Success Message]
+    J --> K([End])
     
-    H -->|No| M["🔒 Redirect to Login"]
+    H -->|No| L[Redirect to Login]
+    L --> K
     
-    G -->|No| N(["🏁 End"])
-    E -->|No| O["⚠️ Show Validation Error"]
-    O --> D
+    G -->|No| K
+    E -->|No| M[Show Error]
+    M --> D
 ```
 
 ### Sequence Diagram - Save Financial Plan
 ```mermaid
 sequenceDiagram
     actor User
-    participant View as UI (Blade/JS)
-    participant Route as Web Routes
-    participant Controller as FinancialController
-    participant Model as FinancialPlan
+    participant UI as Frontend
+    participant API as Laravel Controller
     participant DB as Database
 
-    User->>View: Input Data & Click Save
-    View->>View: Client-side Validation
-    View->>Route: POST /financial/save
-    Route->>Controller: saveFinancialPlan(Request)
-    Controller->>Controller: Validate & Auth Check
-    Controller->>Model: Create([user_id, title, data])
-    Model->>DB: INSERT INTO financial_plans
-    DB-->>Model: ID created
-    Model-->>Controller: Plan Object
-    Controller-->>View: JSON Response {success: true}
-    View-->>User: Show Toast "Berhasil Disimpan"
-    View->>View: Reload Page (Update List)
+    User->>UI: Fill form & click Save
+    UI->>UI: Validate input
+    UI->>API: POST /financial/save
+    API->>API: Authenticate & validate
+    API->>DB: INSERT financial_plan
+    DB-->>API: Success
+    API-->>UI: JSON response
+    UI-->>User: Show notification
 ```
 
 ### ERD (Entity Relationship Diagram)
 ```mermaid
 erDiagram
-    USERS ||--o{ FINANCIAL_PLANS : manages
-    USERS ||--o{ HEALTH_LOGS : tracks
-    USERS ||--o{ SESSIONS : has
+    USERS ||--o{ FINANCIAL_PLANS : has
+    USERS ||--o{ HEALTH_LOGS : has
     
     USERS {
         bigint id PK
         string name
-        string email
-        string google_id UK
-        string password
-        remember_token token
+        string email UK
+        string google_id
         timestamp created_at
     }
     
@@ -188,15 +179,6 @@ erDiagram
         float bmi
         string category
         timestamp created_at
-    }
-    
-    SESSIONS {
-        string id PK
-        bigint user_id FK
-        string ip_address
-        text user_agent
-        text payload
-        int last_activity
     }
 ```
 
