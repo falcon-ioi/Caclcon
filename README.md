@@ -186,19 +186,22 @@ erDiagram
 
 ## 🎨 Mock-Up / Screenshots
 
-### 1. Scientific Calculator
+### 1. Halaman Login
+![Login Page](public/images/screenshot-login.png)
+
+### 2. Scientific Calculator
 ![Calculator Page](public/images/screenshot-calculator.png)
 
-### 2. Unit Converter
+### 3. Unit Converter
 ![Converter Page](public/images/screenshot-converter.png)
 
-### 3. Currency Converter
+### 4. Currency Converter
 ![Currency Page](public/images/screenshot-currency.png)
 
-### 4. Financial Calculator
+### 5. Financial Calculator
 ![Financial Page](public/images/screenshot-financial.png)
 
-### 5. Health Calculator
+### 6. Health Calculator
 ![Health Page](public/images/screenshot-health.png)
 
 ---
