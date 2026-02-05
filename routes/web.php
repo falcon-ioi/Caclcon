@@ -12,9 +12,14 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
 });
 
+// Public routes
+Route::get('/', [CalculatorController::class, 'index'])->name('home');
+Route::get('auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+
 // Protected routes (auth required)
 Route::middleware('auth')->group(function () {
-    Route::get('/', [CalculatorController::class, 'index'])->name('home');
+    // Route::get('/', [CalculatorController::class, 'index'])->name('home'); // Moved up
     Route::post('/save-history', [CalculatorController::class, 'saveHistory'])->name('save-history');
     
     // Financial Plans

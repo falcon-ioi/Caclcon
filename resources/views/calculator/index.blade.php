@@ -32,11 +32,16 @@
 <header>
     <h1>E-Concalc</h1>
     <div class="user-info">
-        <span>Halo, <b>{{ $username }}</b></span>
-        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-            @csrf
-            <button type="submit" class="btn-logout">Logout</button>
-        </form>
+        @auth
+            <span>Halo, <b>{{ $username }}</b></span>
+            <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                @csrf
+                <button type="submit" class="btn-logout">Logout</button>
+            </form>
+        @else
+            <span>Halo, <b>Tamu</b></span>
+            <a href="{{ route('login') }}" class="btn-login" style="margin-left: 10px; text-decoration: none; background: #3b82f6; padding: 5px 15px; border-radius: 5px; color: white;">Login</a>
+        @endauth
     </div>
 </header>
 
@@ -127,16 +132,20 @@
         
         <div class="conv-type-selector">
             <select id="conv-type" onchange="updateUnits()">
-                <option value="length">📏 Panjang (Length)</option>
-                <option value="weight">⚖️ Berat (Weight)</option>
-                <option value="temperature">🌡️ Suhu (Temperature)</option>
-                <option value="time">⏱️ Waktu (Time)</option>
-                <option value="data">💾 Data Digital</option>
-                <option value="speed">🚀 Kecepatan (Speed)</option>
-                <option value="area">📐 Luas (Area)</option>
-                <option value="volume">🧪 Volume</option>
-                <option value="pressure">🔧 Tekanan (Pressure)</option>
-                <option value="energy">⚡ Energi (Energy)</option>
+                <option value="length">Panjang (Length)</option>
+                <option value="weight">Berat (Weight)</option>
+                <option value="temperature">Suhu (Temperature)</option>
+                <option value="time">Waktu (Time)</option>
+                <option value="data">Data Digital</option>
+                <option value="speed">Kecepatan (Speed)</option>
+                <option value="area">Luas (Area)</option>
+                <option value="volume">Volume</option>
+                <option value="pressure">Tekanan (Pressure)</option>
+                <option value="energy">Energi (Energy)</option>
+                <option value="force">Gaya (Force)</option>
+                <option value="angle">Sudut (Angle)</option>
+                <option value="frequency">Frekuensi (Frequency)</option>
+                <option value="power">Daya (Power)</option>
             </select>
         </div>
 
@@ -391,9 +400,20 @@
 <script>
     window.healthData = @json($healthLogs);
     window.userSettings = @json($settings);
+    window.isAuthenticated = {{ Auth::check() ? 'true' : 'false' }};
+
+    function checkAuth() {
+        if (!window.isAuthenticated) {
+            alert('Fitur ini hanya untuk pengguna yang Login. Silakan Login atau Register terlebih dahulu.');
+            window.location.href = "{{ route('login') }}";
+            return false;
+        }
+        return true;
+    }
 </script>
-<script src="{{ asset('js/script.js') }}"></script>
-<script src="{{ asset('js/financial.js') }}"></script>
-<script src="{{ asset('js/health.js') }}"></script>
-<script src="{{ asset('js/currency.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ asset('js/script.js') }}?v={{ time() }}"></script>
+<script src="{{ asset('js/financial.js') }}?v={{ time() }}"></script>
+<script src="{{ asset('js/health.js') }}?v={{ time() }}"></script>
+<script src="{{ asset('js/currency.js') }}?v={{ time() }}"></script>
 @endsection

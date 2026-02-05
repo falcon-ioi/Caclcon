@@ -305,6 +305,8 @@ function switchFinanceTab(tab) {
 }
 
 function saveFinancialPlan() {
+    if (!checkAuth()) return;
+
     const titleInput = document.getElementById('plan-title');
     const title = titleInput ? titleInput.value.trim() : '';
 

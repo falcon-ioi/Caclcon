@@ -14,24 +14,34 @@ class CalculatorController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
-        $riwayat = Riwayat::where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->limit(10)
-            ->get();
 
-        $financialPlans = FinancialPlan::where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        if ($user) {
+            $riwayat = Riwayat::where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get();
 
-        $healthLogs = HealthLog::where('user_id', $user->id)
-            ->orderBy('created_at', 'asc') // Ascending for chart
-            ->get();
-            
-        $settings = $user->settings ?? ['theme' => 'dark'];
+            $financialPlans = FinancialPlan::where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $healthLogs = HealthLog::where('user_id', $user->id)
+                ->orderBy('created_at', 'asc') // Ascending for chart
+                ->get();
+                
+            $settings = $user->settings ?? ['theme' => 'dark'];
+            $username = $user->name;
+        } else {
+            // Guest Data (Empty)
+            $riwayat = [];
+            $financialPlans = [];
+            $healthLogs = [];
+            $settings = ['theme' => 'dark'];
+            $username = 'Guest';
+        }
 
         return view('calculator.index', [
-            'username' => $user->name,
+            'username' => $username,
             'riwayat' => $riwayat,
             'financialPlans' => $financialPlans,
             'healthLogs' => $healthLogs,

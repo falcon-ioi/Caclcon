@@ -67,4 +67,43 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
         return redirect()->route('login');
     }
+
+    // Google Login
+    public function redirectToGoogle()
+    {
+        return \Laravel\Socialite\Facades\Socialite::driver('google')->redirect();
+    }
+
+    public function handleGoogleCallback()
+    {
+        try {
+            $googleUser = \Laravel\Socialite\Facades\Socialite::driver('google')->user();
+            
+            $user = User::where('google_id', $googleUser->id)->first();
+            
+            if(!$user) {
+                // Check if email exists
+                $user = User::where('email', $googleUser->email)->first();
+                
+                if($user) {
+                    // Update existing user with google_id
+                    $user->update(['google_id' => $googleUser->id]);
+                } else {
+                    // Create new user
+                    $user = User::create([
+                        'name' => $googleUser->name,
+                        'email' => $googleUser->email,
+                        'google_id' => $googleUser->id,
+                        'password' => Hash::make(uniqid()), // Random password
+                    ]);
+                }
+            }
+
+            Auth::login($user);
+            return redirect()->route('home');
+            
+        } catch (\Exception $e) {
+            return redirect()->route('login')->with('error', 'Gagal login dengan Google, silakan coba lagi.');
+        }
+    }
 }

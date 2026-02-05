@@ -110,6 +110,8 @@ function calculateIdealWeight() {
 
 // --- Health Tracker & Chart ---
 function saveBMI() {
+    if (!checkAuth()) return;
+
     const weight = parseFloat(document.getElementById('bmi-weight').value) || 0;
     const height = parseFloat(document.getElementById('bmi-height').value) || 0;
 

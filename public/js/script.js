@@ -39,6 +39,13 @@ function switchTab(tab) {
 
 // --- Keyboard Shortcuts ---
 document.addEventListener('keydown', function (e) {
+    // Skip if user is focused on an input field that is NOT the calculator display
+    const activeEl = document.activeElement;
+    const activeTag = activeEl.tagName.toLowerCase();
+    const isCalcDisplay = activeEl.id === 'calc-display';
+
+    if (['input', 'textarea', 'select'].includes(activeTag) && !isCalcDisplay) return;
+
     // Only work when calculator panel is active
     const calcPanel = document.getElementById('calc-panel');
     if (!calcPanel || calcPanel.style.display === 'none') return;
@@ -276,7 +283,11 @@ const units = {
     area: ['m²', 'cm²', 'km²', 'ha', 'acre', 'ft²'],
     volume: ['L', 'mL', 'gallon', 'm³', 'cup', 'fl oz'],
     pressure: ['Pa', 'kPa', 'bar', 'psi', 'atm'],
-    energy: ['J', 'kJ', 'cal', 'kcal', 'kWh', 'BTU']
+    energy: ['J', 'kJ', 'cal', 'kcal', 'kWh', 'BTU'],
+    force: ['N', 'kN', 'lbf', 'dyn', 'kgf'],
+    angle: ['deg', 'rad', 'grad', 'arcmin', 'arcsec'],
+    frequency: ['Hz', 'kHz', 'MHz', 'GHz', 'rpm'],
+    power: ['W', 'kW', 'MW', 'hp', 'BTU/h']
 };
 
 const factors = {
@@ -288,7 +299,11 @@ const factors = {
     area: { 'm²': 1, 'cm²': 0.0001, 'km²': 1000000, ha: 10000, acre: 4046.86, 'ft²': 0.092903 },
     volume: { L: 1, mL: 0.001, gallon: 3.78541, 'm³': 1000, cup: 0.236588, 'fl oz': 0.0295735 },
     pressure: { Pa: 1, kPa: 1000, bar: 100000, psi: 6894.76, atm: 101325 },
-    energy: { J: 1, kJ: 1000, cal: 4.184, kcal: 4184, kWh: 3600000, BTU: 1055.06 }
+    energy: { J: 1, kJ: 1000, cal: 4.184, kcal: 4184, kWh: 3600000, BTU: 1055.06 },
+    force: { N: 1, kN: 1000, lbf: 4.44822, dyn: 0.00001, kgf: 9.80665 },
+    angle: { deg: 1, rad: 57.2958, grad: 0.9, arcmin: 0.016667, arcsec: 0.000278 },
+    frequency: { Hz: 1, kHz: 1000, MHz: 1000000, GHz: 1000000000, rpm: 0.016667 },
+    power: { W: 1, kW: 1000, MW: 1000000, hp: 745.7, 'BTU/h': 0.29307 }
 };
 
 function updateUnits() {
@@ -365,6 +380,9 @@ function convert() {
 // --- AJAX Logic ---
 // --- AJAX Logic ---
 function saveHistory(operationText) {
+    // Silent fail for guests
+    if (!window.isAuthenticated) return;
+
     const csrfToken = document.querySelector('meta[name="csrf-token"]');
     const token = csrfToken ? csrfToken.getAttribute('content') : '';
 
@@ -472,4 +490,131 @@ function swapUnits() {
     toSelect.value = temp;
 
     convert();
+}
+
+// --- Voice Command Implementation ---
+function initVoiceCommand() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        console.log('Web Speech API not supported');
+        const micBtn = document.getElementById('micBtn');
+        if (micBtn) micBtn.style.display = 'none';
+        return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+
+    recognition.continuous = false;
+    recognition.lang = 'id-ID';
+    recognition.interimResults = false;
+
+    const micBtn = document.getElementById('micBtn');
+    const display = document.getElementById('calc-display'); // Correct ID
+
+    if (micBtn) {
+        micBtn.addEventListener('click', () => {
+            if (micBtn.classList.contains('listening')) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        });
+    }
+
+    recognition.onstart = () => {
+        if (micBtn) micBtn.classList.add('listening');
+        // Assuming showToast exists or fallback
+        console.log('Mendengarkan...');
+    };
+
+    recognition.onend = () => {
+        if (micBtn) micBtn.classList.remove('listening');
+    };
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript.toLowerCase();
+        console.log('Suara:', transcript);
+        processVoiceCommand(transcript);
+    };
+
+    function processVoiceCommand(text) {
+        let mathExpression = text
+            .replace(/ditambah|tambah|plus/g, '+')
+            .replace(/dikurang|kurang|minus/g, '-')
+            .replace(/dikali|kali/g, '*')
+            .replace(/dibagi|bagi/g, '/')
+            .replace(/koma/g, '.')
+            .replace(/persen/g, '/100')
+            .replace(/sama dengan/g, '')
+            .replace(/[^0-9+\-*/().]/g, '');
+
+        if (mathExpression) {
+            try {
+                const result = new Function('return ' + mathExpression)();
+                if (display) display.value = result;
+                if (typeof currentInput !== 'undefined') currentInput = result.toString();
+
+                speakResult('Hasilnya ' + result);
+
+                if (window.isAuthenticated && typeof saveHistory === 'function') {
+                    saveHistory(mathExpression + ' (Suara)'); // Removed result arg as saveHistory takes one arg usually
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    }
+
+    function speakResult(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'id-ID';
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
+// --- Auto Theme Logic ---
+function initAutoTheme() {
+    const setTheme = (isDark) => {
+        if (isDark) {
+            document.body.classList.remove('light-theme');
+        } else {
+            document.body.classList.add('light-theme');
+        }
+    };
+
+    const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    // Only apply if no local storage override
+    if (!localStorage.getItem('econcalc-theme')) {
+        setTheme(darkModeQuery.matches);
+    }
+
+    darkModeQuery.addEventListener('change', (e) => {
+        if (!localStorage.getItem('econcalc-theme')) {
+            setTheme(e.matches);
+        }
+    });
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    initVoiceCommand();
+    initAutoTheme();
+});
+
+
+// --- Global Notification Helper ---
+function showNotification(message, type = 'info') {
+    // Try toast first
+    const toast = document.getElementById('save-toast');
+    if (toast) {
+        toast.textContent = message;
+        toast.className = 'toast toast-show';
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+        return;
+    }
+    // Fallback
+    console.log('[Notification]', message);
+    alert(message);
 }
