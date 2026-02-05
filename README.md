@@ -261,55 +261,125 @@ flowchart TD
     P --> Q
 ```
 
+### Sequence Diagram - Google OAuth Login
+```mermaid
+sequenceDiagram
+    actor User
+    participant UI as Login Page
+    participant Auth as AuthController
+    participant Google as Google OAuth
+    participant DB as Database
+
+    User->>UI: Click "Sign in with Google"
+    UI->>Auth: GET /auth/google
+    Auth->>Google: Redirect to OAuth consent
+    Google->>User: Show consent screen
+    User->>Google: Grant permission
+    Google->>Auth: Callback with auth code
+    Auth->>Google: Exchange code for user data
+    Google-->>Auth: Return user info (email, name)
+    Auth->>DB: Find or create user
+    DB-->>Auth: User record
+    Auth->>Auth: Create session
+    Auth-->>UI: Redirect to dashboard
+    UI-->>User: Show authenticated view
+```
+
 ### Sequence Diagram - Save Financial Plan
 ```mermaid
 sequenceDiagram
     actor User
-    participant UI as Frontend
-    participant API as Laravel Controller
+    participant UI as Frontend (JS)
+    participant API as CalculatorController
+    participant Model as FinancialPlan
     participant DB as Database
 
-    User->>UI: Fill form & click Save
-    UI->>UI: Validate input
-    UI->>API: POST /financial/save
-    API->>API: Authenticate & validate
-    API->>DB: INSERT financial_plan
-    DB-->>API: Success
-    API-->>UI: JSON response
-    UI-->>User: Show notification
+    User->>UI: Fill form & enter plan title
+    UI->>UI: Validate input fields
+    User->>UI: Click "Simpan"
+    UI->>API: POST /financial/save (AJAX)
+    API->>API: Check authentication
+    API->>API: Validate request data
+    API->>Model: Create new plan
+    Model->>DB: INSERT INTO financial_plans
+    DB-->>Model: Return created record
+    Model-->>API: Plan object with ID
+    API-->>UI: JSON {success: true, plan}
+    UI->>UI: Add plan to saved list
+    UI-->>User: Show success toast
+```
+
+### Sequence Diagram - Save Health Log
+```mermaid
+sequenceDiagram
+    actor User
+    participant UI as Frontend (JS)
+    participant API as CalculatorController
+    participant Model as HealthLog
+    participant DB as Database
+
+    User->>UI: Enter weight & height
+    UI->>UI: Calculate BMI & category
+    UI-->>User: Display BMI result
+    User->>UI: Click "Simpan ke Log"
+    UI->>API: POST /health/save (AJAX)
+    API->>API: Check authentication
+    API->>API: Validate BMI data
+    API->>Model: Create health log
+    Model->>DB: INSERT INTO health_logs
+    DB-->>Model: Return created record
+    Model-->>API: HealthLog object
+    API-->>UI: JSON {success: true}
+    UI-->>User: Show success notification
 ```
 
 ### ERD (Entity Relationship Diagram)
 ```mermaid
 erDiagram
-    USERS ||--o{ FINANCIAL_PLANS : has
-    USERS ||--o{ HEALTH_LOGS : has
+    USERS ||--o{ FINANCIAL_PLANS : "has many"
+    USERS ||--o{ HEALTH_LOGS : "has many"
+    USERS ||--o{ SESSIONS : "has many"
     
     USERS {
-        bigint id PK
-        string name
-        string email UK
-        string google_id
-        timestamp created_at
+        bigint id PK "Auto increment"
+        varchar name "User display name"
+        varchar email UK "Unique email address"
+        timestamp email_verified_at "Email verification time"
+        varchar password "Hashed password"
+        varchar remember_token "Session remember token"
+        varchar google_id "Google OAuth ID"
+        timestamp created_at "Record creation time"
+        timestamp updated_at "Last update time"
     }
     
     FINANCIAL_PLANS {
-        bigint id PK
-        bigint user_id FK
-        string title
-        string type
-        json data
-        timestamp created_at
+        bigint id PK "Auto increment"
+        bigint user_id FK "References users.id"
+        varchar title "Plan name (e.g. KPR Rumah)"
+        varchar type "simple|compound|loan|discount"
+        json data "Calculation inputs and results"
+        timestamp created_at "Record creation time"
+        timestamp updated_at "Last update time"
     }
     
     HEALTH_LOGS {
-        bigint id PK
-        bigint user_id FK
-        float weight
-        float height
-        float bmi
-        string category
-        timestamp created_at
+        bigint id PK "Auto increment"
+        bigint user_id FK "References users.id"
+        float weight "Weight in kg"
+        float height "Height in cm"
+        float bmi "Calculated BMI value"
+        varchar category "Underweight|Normal|Overweight|Obese"
+        timestamp created_at "Record creation time"
+        timestamp updated_at "Last update time"
+    }
+    
+    SESSIONS {
+        varchar id PK "Session identifier"
+        bigint user_id FK "References users.id (nullable)"
+        varchar ip_address "Client IP address"
+        text user_agent "Browser user agent"
+        longtext payload "Session data"
+        int last_activity "Unix timestamp"
     }
 ```
 
