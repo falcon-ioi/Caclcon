@@ -19,7 +19,7 @@ Dengan antarmuka **Dark Mode** yang premium dan responsif, E-Concalc memberikan 
 - **User Experience Premium**: Menyajikan antarmuka modern dengan efek glassmorphism dan neon glow
 - **Produktivitas**: Membantu pengguna melakukan perhitungan sehari-hari dengan cepat dan akurat
 - **Pencatatan Riwayat**: Menyimpan log aktivitas perhitungan untuk referensi di masa mendatang
-- **Aksesibilitas Tinggi**: Mendukung fitur Voice Command untuk input suara dan akses instan bagi pengguna tamu
+- **Aksesibilitas Tinggi**: Akses instan bagi pengguna tamu tanpa perlu registrasi
 
 ### Tech Stack:
 - **Backend:** Laravel 10 (PHP 8.1+)
@@ -41,8 +41,7 @@ Dengan antarmuka **Dark Mode** yang premium dan responsif, E-Concalc memberikan 
 | US-04 | Sebagai user, saya ingin menghitung bunga tabungan atau cicilan pinjaman | High |
 | US-05 | Sebagai user, saya ingin mengetahui BMI dan berat badan ideal saya | Medium |
 | US-06 | Sebagai user, saya ingin melihat riwayat perhitungan yang pernah saya lakukan | Medium |
-| US-07 | Sebagai user, saya ingin menggunakan perintah suara untuk berhitung | Medium |
-| US-08 | Sebagai user, saya ingin menyimpan rencana finansial saya ke database | Medium |
+| US-07 | Sebagai user, saya ingin menyimpan rencana finansial saya ke database | Medium |
 
 ---
 
@@ -57,10 +56,9 @@ Dengan antarmuka **Dark Mode** yang premium dan responsif, E-Concalc memberikan 
 | FR-04 | Currency Converter | Konversi mata uang asing real-time | ✅ Done |
 | FR-05 | Financial Calculator | Hitung Bunga (Simple/Compound), Cicilan, Diskon | ✅ Done |
 | FR-06 | Health Calculator | Hitung BMI & Berat Ideal (Devine Formula) | ✅ Done |
-| FR-07 | Voice Command | Input perhitungan menggunakan suara (Web Speech API) | ✅ Done |
-| FR-08 | History Log | Mencatat riwayat aktivitas perhitungan user | ✅ Done |
-| FR-09 | Save Data | Menyimpan Rencana Finansial & Log Kesehatan | ✅ Done |
-| FR-10 | Data Export | Ekspor riwayat ke format CSV/PDF | ✅ Done |
+| FR-07 | History Log | Mencatat riwayat aktivitas perhitungan user | ✅ Done |
+| FR-08 | Save Data | Menyimpan Rencana Finansial & Log Kesehatan | ✅ Done |
+| FR-09 | Data Export | Ekspor riwayat ke format CSV/PDF | ✅ Done |
 
 ### Non-Functional Requirements
 | ID | Requirement | Deskripsi |
@@ -330,7 +328,7 @@ ECalc/
 
 | Fitur | Deskripsi |
 |-------|-----------|
-| 🔢 **Scientific Calculator** | Trigonometri, Eksponen, Voice Command |
+| 🔢 **Scientific Calculator** | Trigonometri, Eksponen, Memory Functions |
 | 📐 **Multi-Unit Converter** | 7 Kategori Konversi Satuan |
 | 💵 **Real-time Currency** | Kurs Mata Uang Asing Live |
 | 💰 **Financial Tools** | Bunga Sederhana, Majemuk, Cicilan, Diskon |
