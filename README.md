@@ -1,34 +1,33 @@
 # 📚 Dokumentasi Project (Progress Report)
 
-<p align="center">
-  <img src="public/images/ecalc-banner.png" alt="E-Concalc Banner" width="100%">
-</p>
-
-## E-Concalc - Electronic Calculation Platform
+## E-Concalc - Electronic Conversion Calculator
 ![Laravel](https://img.shields.io/badge/Laravel-10.x-red?logo=laravel)
 ![PHP](https://img.shields.io/badge/PHP-8.1+-blue?logo=php)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow?logo=javascript)
-![MySQL](https://img.shields.io/badge/MySQL-8.0+-orange?logo=mysql)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)
+![Google](https://img.shields.io/badge/OAuth-Google-4285F4?logo=google)
 
 ---
 
 ## 📖 Deskripsi
 **E-Concalc** (Electronic Conversion Calculator) adalah platform kalkulator berbasis web yang modern dan komprehensif. Aplikasi ini dirancang untuk memenuhi berbagai kebutuhan perhitungan pengguna dalam satu tempat, mulai dari perhitungan matematis kompleks, konversi satuan, estimasi perencanaan finansial, hingga pemantauan kesehatan tubuh.
 
-Dengan antarmuka **Dark Mode** yang premium dan responsif, E-Concalc memberikan pengalaman pengguna yang nyaman dan efisien di berbagai perangkat.
+Dengan antarmuka **Dark Mode** yang premium dan responsif, E-Concalc memberikan pengalaman pengguna yang nyaman dan efisien di berbagai perangkat, serta mendukung sistem login hibrida (Guest & Google OAuth).
 
 ### Tujuan Utama:
 - **All-in-One Tool**: Menggabungkan berbagai alat hitung (Kalkulator, Konverter, Finansial, Kesehatan) dalam satu aplikasi
 - **User Experience Premium**: Menyajikan antarmuka modern dengan efek glassmorphism dan neon glow
 - **Produktivitas**: Membantu pengguna melakukan perhitungan sehari-hari dengan cepat dan akurat
 - **Pencatatan Riwayat**: Menyimpan log aktivitas perhitungan untuk referensi di masa mendatang
+- **Aksesibilitas Tinggi**: Mendukung fitur Voice Command untuk input suara dan akses instan bagi pengguna tamu
 
 ### Tech Stack:
 - **Backend:** Laravel 10 (PHP 8.1+)
 - **Frontend:** Blade Templates + Vanilla JavaScript
 - **Styling:** Vanilla CSS (Modern Dark UI)
-- **Database:** MySQL
-- **Server:** Apache (XAMPP) / Nginx
+- **Database:** MySQL 8.0
+- **Auth:** Google OAuth (Laravel Socialite) + Custom Guard
+- **Server:** Apache (XAMPP)
 
 ---
 
@@ -37,12 +36,13 @@ Dengan antarmuka **Dark Mode** yang premium dan responsif, E-Concalc memberikan 
 | ID | User Story | Priority |
 |----|------------|----------|
 | US-01 | Sebagai user, saya ingin melakukan perhitungan matematika ilmiah (sin, cos, tan, log) | High |
-| US-02 | Sebagai user, saya ingin mengonversi berbagai satuan (panjang, berat, suhu) dengan mudah | High |
-| US-03 | Sebagai user, saya ingin menghitung bunga tabungan atau cicilan pinjaman untuk perencanaan uang | High |
-| US-04 | Sebagai user, saya ingin mengetahui BMI dan berat badan ideal saya untuk memantau kesehatan | Medium |
-| US-05 | Sebagai user, saya ingin melihat riwayat perhitungan yang pernah saya lakukan | Medium |
-| US-06 | Sebagai user, saya ingin mengubah mata uang asing ke Rupiah secara real-time | Medium |
-| US-07 | Sebagai user, saya ingin menyimpan rencana finansial saya agar tidak lupa | Low |
+| US-02 | Sebagai user, saya ingin masuk menggunakan akun Google agar lebih cepat | High |
+| US-03 | Sebagai user, saya ingin mengonversi berbagai satuan (panjang, berat, suhu, dll) | High |
+| US-04 | Sebagai user, saya ingin menghitung bunga tabungan atau cicilan pinjaman | High |
+| US-05 | Sebagai user, saya ingin mengetahui BMI dan berat badan ideal saya | Medium |
+| US-06 | Sebagai user, saya ingin melihat riwayat perhitungan yang pernah saya lakukan | Medium |
+| US-07 | Sebagai user, saya ingin menggunakan perintah suara untuk berhitung | Medium |
+| US-08 | Sebagai user, saya ingin menyimpan rencana finansial saya ke database | Medium |
 
 ---
 
@@ -51,25 +51,25 @@ Dengan antarmuka **Dark Mode** yang premium dan responsif, E-Concalc memberikan 
 ### Functional Requirements
 | ID | Feature | Deskripsi | Status |
 |----|---------|-----------|--------|
-| FR-01 | Authentication | Login, Register, Logout System dengan Laravel | ✅ Done |
-| FR-02 | Scientific Calculator | Kalkulator dengan fungsi trigonometri, logaritma, eksponen, dll | ✅ Done |
-| FR-03 | Unit Converter | Konversi Panjang, Berat, Suhu, Waktu, Data, Luas, Volume | ✅ Done |
-| FR-04 | Currency Converter | Konversi mata uang asing (USD, EUR, dll) ke IDR real-time | ✅ Done |
-| FR-05 | Financial Calculator | Hitung Bunga Sederhana/Majemuk, Cicilan Pinjaman, Diskon | ✅ Done |
-| FR-06 | Health Calculator | Hitung BMI (Body Mass Index) & Berat Badan Ideal | ✅ Done |
-| FR-07 | History Log | Mencatat riwayat aktivitas perhitungan user | ✅ Done |
-| FR-08 | Save Financial Plans | Menyimpan rencana keuangan ke database | ✅ Done |
-| FR-09 | Dark Mode UI | Tampilan antarmuka gelap premium yang nyaman di mata | ✅ Done |
-| FR-10 | Responsive Design | Tampilan adaptif untuk Desktop, Tablet, dan Mobile | ✅ Done |
+| FR-01 | Authentication | Login Google via Socialite & Guest Access | ✅ Done |
+| FR-02 | Scientific Calculator | Fungsi trigonometri, logaritma, eksponen, memory | ✅ Done |
+| FR-03 | Unit Converter | Konversi 7+ Kategori (Panjang, Berat, Suhu, Data, dll) | ✅ Done |
+| FR-04 | Currency Converter | Konversi mata uang asing real-time | ✅ Done |
+| FR-05 | Financial Calculator | Hitung Bunga (Simple/Compound), Cicilan, Diskon | ✅ Done |
+| FR-06 | Health Calculator | Hitung BMI & Berat Ideal (Devine Formula) | ✅ Done |
+| FR-07 | Voice Command | Input perhitungan menggunakan suara (Web Speech API) | ✅ Done |
+| FR-08 | History Log | Mencatat riwayat aktivitas perhitungan user | ✅ Done |
+| FR-09 | Save Data | Menyimpan Rencana Finansial & Log Kesehatan | ✅ Done |
+| FR-10 | Data Export | Ekspor riwayat ke format CSV/PDF | ✅ Done |
 
 ### Non-Functional Requirements
 | ID | Requirement | Deskripsi |
 |----|-------------|-----------|
 | NFR-01 | Aesthetics | Desain modern dengan efek glassmorphism dan neon glow |
-| NFR-02 | Performance | Waktu muat halaman yang cepat dan ringan (< 3 detik) |
+| NFR-02 | Performance | Waktu muat halaman yang cepat dan ringan (< 2 detik) |
 | NFR-03 | Compatibility | Berjalan lancar di browser modern (Chrome, Edge, Firefox) |
 | NFR-04 | Usability | Navigasi intuitif antar fitur dengan tab-based interface |
-| NFR-05 | Security | Input validation dan sanitization untuk semua form |
+| NFR-05 | Security | Validasi input server-side & CSRF protection |
 
 ---
 
@@ -80,16 +80,16 @@ Dengan antarmuka **Dark Mode** yang premium dan responsif, E-Concalc memberikan 
 flowchart LR
     subgraph Actors
         User(("👤 User"))
+        Guest(("👤 Guest"))
     end
     
     subgraph E-Concalc["📱 E-Concalc System"]
-        UC1["🔐 Login / Register"]
+        UC1["🔐 Login Google / Guest"]
         UC2["🔢 Scientific Calculation"]
-        UC3["📐 Unit Conversion"]
-        UC4["💵 Currency Conversion"]
-        UC5["💰 Financial Planning"]
-        UC6["❤️ Health Tracking"]
-        UC7["📜 View History"]
+        UC3["🗣️ Voice Command"]
+        UC4["💰 Financial Planning"]
+        UC5["❤️ Health Tracking"]
+        UC6["💾 Save History"]
     end
 
     User --> UC1
@@ -98,7 +98,9 @@ flowchart LR
     User --> UC4
     User --> UC5
     User --> UC6
-    User --> UC7
+    
+    Guest --> UC2
+    Guest --> UC3
 ```
 
 ### Activity Diagram - Financial Planning
@@ -111,35 +113,15 @@ flowchart TD
     
     E -->|Yes| F["🔢 Calculate Result"]
     F --> G["📈 Display Projection"]
-    G --> H{"💾 User clicks Save?"}
+    F --> H{"💾 User clicks Save?"}
     
-    H -->|Yes| I["💿 Save to Database"]
-    I --> J["🔔 Show Toast Notification"]
-    J --> K(["🏁 End"])
+    H -->|Yes| I{"🔐 Is Authenticated?"}
+    I -->|Yes| J["💿 Save to Database"]
+    I -->|No| K["🔒 Prompt Login"]
     
-    H -->|No| K
-    E -->|No| L["⚠️ Show Validation Error"]
-    L --> D
-```
-
-### Sequence Diagram - Save Financial Plan
-```mermaid
-sequenceDiagram
-    actor User
-    participant View as UI (Blade)
-    participant Controller as FinancialController
-    participant Model as FinancialPlan
-    participant DB as Database
-
-    User->>View: Input Data & Click Save
-    View->>Controller: POST /save-plan
-    Controller->>Controller: Validate Input
-    Controller->>Model: Create New Plan
-    Model->>DB: Insert Record
-    DB-->>Model: Success
-    Model-->>Controller: Return Object
-    Controller-->>View: Return JSON Success
-    View-->>User: Show "Plan Saved" Toast
+    J --> L(["🏁 End"])
+    E -->|No| M["⚠️ Show Validation Error"]
+    M --> D
 ```
 
 ### ERD (Entity Relationship Diagram)
@@ -153,9 +135,8 @@ erDiagram
         int id PK
         string name
         string email
-        string password
+        string google_id
         timestamp created_at
-        timestamp updated_at
     }
     
     FINANCIAL_PLANS {
@@ -163,26 +144,17 @@ erDiagram
         int user_id FK
         string title
         string type
-        text data
+        json data
         timestamp created_at
-        timestamp updated_at
     }
     
     HEALTH_LOGS {
         int id PK
         int user_id FK
-        string type
-        float value
-        string result
-        timestamp created_at
-    }
-    
-    RIWAYAT_AKTIVITAS {
-        int id PK
-        int user_id FK
-        string aktivitas
-        string detail
-        timestamp created_at
+        float weight
+        float height
+        float bmi
+        string category
     }
 ```
 
@@ -190,22 +162,19 @@ erDiagram
 
 ## 🎨 Mock-Up / Screenshots
 
-### 1. Halaman Login
-![Login Page](public/images/screenshot-login.png)
-
-### 2. Scientific Calculator
+### 1. Scientific Calculator
 ![Calculator Page](public/images/screenshot-calculator.png)
 
-### 3. Unit Converter
+### 2. Unit Converter
 ![Converter Page](public/images/screenshot-converter.png)
 
-### 4. Currency Converter
+### 3. Currency Converter
 ![Currency Page](public/images/screenshot-currency.png)
 
-### 5. Financial Calculator
+### 4. Financial Calculator
 ![Financial Page](public/images/screenshot-financial.png)
 
-### 6. Health Calculator
+### 5. Health Calculator
 ![Health Page](public/images/screenshot-health.png)
 
 ---
@@ -222,14 +191,13 @@ erDiagram
 | **4. Development** | Coding, unit testing | Source code, tests |
 | **5. Testing** | Integration testing, UAT | Test cases, bug reports |
 | **6. Deployment** | Server setup, deployment | Live application |
-| **7. Maintenance** | Bug fixes, feature updates | Patches, updates |
 
 ### Timeline
 ```
 Minggu 1     : Planning & Analysis
 Minggu 2     : Design (UML, Mockups, Database)
 Minggu 3-5   : Development Sprint 1 (Core Features - Calculator, Converter)
-Minggu 6-7   : Development Sprint 2 (Financial, Health, History)
+Minggu 6-7   : Development Sprint 2 (Financial, Health, Google Auth)
 Minggu 8     : Testing, Bug Fixes & Deployment
 ```
 
@@ -242,7 +210,6 @@ Pastikan Anda sudah menginstall:
 - **PHP** >= 8.1
 - **Composer** >= 2.0
 - **Node.js** >= 18.0
-- **NPM** >= 9.0
 - **MySQL** (via XAMPP/Laragon)
 - **Git**
 
@@ -261,7 +228,7 @@ composer install
 npm install
 ```
 
-### Langkah 3: Konfigurasi Environment
+### Langkah 3: Konfigurasi Environment & Google OAuth
 ```bash
 # Copy file environment
 cp .env.example .env
@@ -270,105 +237,64 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-Edit file `.env` dan sesuaikan konfigurasi database:
+**Edit file `.env`** dan sesuaikan:
 
 ```env
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
-DB_PORT=3306
 DB_DATABASE=ecalc_db
 DB_USERNAME=root
 DB_PASSWORD=
+
+# Google OAuth (Wajib untuk Login)
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google/callback
 ```
 
 ### Langkah 4: Setup Database
 ```bash
-# Buat database di MySQL
-# mysql -u root -p
-# CREATE DATABASE ecalc_db;
-
 # Jalankan migrasi tabel
 php artisan migrate
-
-# (Optional) Link storage untuk upload file
-php artisan storage:link
 ```
 
-### Langkah 5: Build Assets
+### Langkah 5: Build & Run
 ```bash
-# Build untuk production
+# Build assets
 npm run build
 
-# atau untuk development (dengan hot reload)
-npm run dev
-```
-
-### Langkah 6: Jalankan Server
-```bash
+# Jalankan server
 php artisan serve
 ```
 
 Aplikasi akan berjalan di: **http://localhost:8000**
 
-### 🔐 Default Account
-Silakan **Register** akun baru pada halaman login untuk mulai menggunakan aplikasi sepenuhnya.
-
-### ⚠️ Troubleshooting
-
-| Error | Solusi |
-|-------|--------|
-| `SQLSTATE: no such table` | Jalankan `php artisan migrate:fresh` |
-| `Vite manifest not found` | Jalankan `npm run build` |
-| `Permission denied` | Jalankan `chmod -R 775 storage bootstrap/cache` |
-| `Class not found` | Jalankan `composer dump-autoload` |
-| `Page Expired (419)` | Clear cache: `php artisan config:clear` |
+### 🔐 Akun & Login
+- **Guest Mode**: Langsung akses fitur Kalkulator & Konverter tanpa login.
+- **Full Access**: Gunakan tombol "Sign in with Google" untuk fitur Simpan & Riwayat.
 
 ---
 
 ## 📁 Struktur Database
-
 ```
-users              → User accounts (id, name, email, password)
-financial_plans    → Saved financial calculations (user_id, title, type, data)
-health_logs        → Health tracking history (user_id, type, value, result)
-riwayat_aktivitas  → Activity history log (user_id, aktivitas, detail)
+users              → User accounts (id, name, email, google_id)
+financial_plans    → Data perencanaan finansial (user_id, title, type, data json)
+health_logs        → Pencatatan BMI & kesehatan (user_id, bmi, weight, height)
+riwayat_aktivitas  → Log history perhitungan umum
 ```
 
 ---
 
-## 📂 Struktur Folder
-
+## 📁 Struktur Folder
 ```
 ECalc/
 ├── app/
-│   ├── Http/
-│   │   ├── Controllers/
-│   │   │   ├── AuthController.php
-│   │   │   ├── CalculatorController.php
-│   │   │   ├── ConverterController.php
-│   │   │   ├── FinancialController.php
-│   │   │   └── HealthController.php
-│   │   └── Middleware/
-│   └── Models/
-│       ├── User.php
-│       ├── FinancialPlan.php
-│       └── HealthLog.php
-├── database/
-│   └── migrations/
-├── public/
-│   ├── css/
-│   ├── js/
-│   └── images/
-├── resources/
-│   └── views/
-│       ├── auth/
-│       │   ├── login.blade.php
-│       │   └── register.blade.php
-│       ├── main.blade.php
-│       └── layouts/
-├── routes/
-│   └── web.php
-└── .env
+│   ├── Http/Controllers/   → Auth, Calculator, Financial logic
+│   └── Models/             → Eloquent Models (User, FinancialPlan)
+├── database/migrations/    → Schema definitions
+├── public/                 → Compiled assets & Images
+├── resources/views/        → Blade templates (UI)
+└── routes/web.php          → Route definitions
 ```
 
 ---
@@ -377,13 +303,12 @@ ECalc/
 
 | Fitur | Deskripsi |
 |-------|-----------|
-| 🔢 **Scientific Calculator** | Mendukung operasi trigonometri (sin, cos, tan), logaritma, eksponen, faktorial, dan konstanta (π, e) |
-| 📐 **Multi-Unit Converter** | Konversi 7 kategori: Panjang, Berat, Suhu, Waktu, Data, Luas, Volume |
-| 💵 **Real-time Currency** | Kurs mata uang terupdate dengan API real-time |
-| 💰 **Financial Tools** | Bunga sederhana, bunga majemuk, cicilan pinjaman, kalkulator diskon |
-| ❤️ **Health Tracker** | Perhitungan BMI dengan interpretasi dan saran kesehatan |
-| 📜 **History System** | Simpan dan lihat riwayat perhitungan |
-| 🌙 **Dark Mode** | Tampilan gelap premium dengan efek glassmorphism |
+| 🔢 **Scientific Calculator** | Trigonometri, Eksponen, Voice Command |
+| 📐 **Multi-Unit Converter** | 7 Kategori Konversi Satuan |
+| 💵 **Real-time Currency** | Kurs Mata Uang Asing Live |
+| 💰 **Financial Tools** | Bunga Sederhana, Majemuk, Cicilan, Diskon |
+| ❤️ **Health Tracker** | BMI Calculator & Ideal Weight |
+| 🔐 **Hybrid Auth** | Login Google + Akses Tamu |
 
 ---
 
