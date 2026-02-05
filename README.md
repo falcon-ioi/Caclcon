@@ -86,12 +86,11 @@ flowchart LR
     subgraph E-Concalc["📱 E-Concalc System"]
         UC1["🔐 Login Google"]
         UC2["🔢 Scientific Calculation"]
-        UC3["🗣️ Voice Command"]
-        UC4["📐 Unit Conversion"]
-        UC5["💱 Currency Conversion"]
-        UC6["💰 Financial Planning"]
-        UC7["❤️ Health Tracking"]
-        UC8["💾 Save History/Plans"]
+        UC3["📐 Unit Conversion"]
+        UC4["💱 Currency Conversion"]
+        UC5["💰 Financial Planning"]
+        UC6["❤️ Health Tracking"]
+        UC7["💾 Save History/Plans"]
     end
 
     User --> UC1
@@ -101,12 +100,10 @@ flowchart LR
     User --> UC5
     User --> UC6
     User --> UC7
-    User --> UC8
     
     Guest --> UC2
     Guest --> UC3
     Guest --> UC4
-        Guest --> UC5
 ```
 
 ### Activity Diagram - Financial Planning
