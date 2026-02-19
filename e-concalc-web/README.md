@@ -85,87 +85,131 @@ E-Concalc Web adalah platform kalkulator ilmiah dan konverter berbasis web yang 
 ### Use Case Diagram
 
 ```mermaid
-graph TD
-    subgraph "E-Concalc Web"
-        UC1["🖩 Menggunakan Kalkulator Ilmiah"]
-        UC2["🔢 Toggle Mode DEG/RAD"]
-        UC3["💾 Fungsi Memori M+/M-/MR/MC"]
-        UC4["🔄 Toggle Fungsi 2nd"]
-        UC5["⌨️ Input via Keyboard"]
-        UC6["📐 Konversi Satuan"]
-        UC7["💱 Konversi Mata Uang"]
-        UC8["📜 Melihat Riwayat"]
-        UC9["📲 Install PWA"]
+flowchart LR
+    User(("👤 User"))
+
+    subgraph UC_CALC ["🖩 Kalkulator Ilmiah"]
+        UC1["Melakukan Perhitungan Dasar\n+, -, ×, ÷, %"]
+        UC2["Menggunakan Fungsi Ilmiah\nsin, cos, tan, log, ln, √"]
+        UC3["Toggle Mode DEG / RAD"]
+        UC4["Toggle Fungsi 2nd\nsin⁻¹, cos⁻¹, tan⁻¹, eˣ"]
+        UC5["Menggunakan Memori\nMC, MR, M+, M-"]
+        UC6["Input via Keyboard"]
     end
 
-    User["👤 User"] --> UC1
-    User --> UC2
-    User --> UC3
-    User --> UC4
-    User --> UC5
-    User --> UC6
-    User --> UC7
-    User --> UC8
-    User --> UC9
+    subgraph UC_CONV ["📐 Konverter Satuan"]
+        UC7["Pilih Kategori Satuan\npanjang, berat, suhu, waktu,\nkecepatan, luas, volume, data,\nenergi, gaya, sudut, frekuensi, daya"]
+        UC8["Konversi Antar Satuan"]
+        UC9["Swap Satuan Asal & Tujuan"]
+    end
 
-    UC7 -. "fetch API" .-> API["🌐 Exchange Rate API"]
+    subgraph UC_CURR ["💱 Konverter Mata Uang"]
+        UC10["Konversi Mata Uang\n160+ mata uang dunia"]
+        UC11["Swap Mata Uang"]
+        UC12["Refresh Kurs Terbaru"]
+    end
+
+    subgraph UC_OTHER ["📱 Fitur Umum"]
+        UC13["Melihat Riwayat Perhitungan"]
+        UC14["Menghapus Riwayat"]
+        UC15["Install sebagai PWA"]
+        UC16["Ganti Tema Dark / Light"]
+    end
+
+    User --> UC_CALC
+    User --> UC_CONV
+    User --> UC_CURR
+    User --> UC_OTHER
+
+    UC10 -. "fetch API" .-> API["🌐 ExchangeRate API\napi.exchangerate-api.com"]
 ```
 
-### Activity Diagram - Calculator Flow
+### Activity Diagram - Alur Utama Aplikasi
 
 ```mermaid
 flowchart TD
-    A([Start]) --> B[Buka Halaman E-Concalc]
-    B --> C{Pilih Tab}
+    A([User Membuka E-Concalc]) --> B[Laravel Mengirim Halaman]
+    B --> C[Service Worker Mendaftarkan Cache]
+    C --> D[Halaman Dimuat dengan Tab Kalkulator Aktif]
+    D --> E{User Memilih Tab}
 
-    C -->|Kalkulator| D[Tampilkan Kalkulator Ilmiah]
-    C -->|Konverter| E[Tampilkan Konverter Satuan]
-    C -->|Mata Uang| F[Tampilkan Konverter Mata Uang]
+    E -->|"🖩 Kalkulator"| F[Tab Kalkulator Aktif]
+    F --> F1[User Menekan Tombol Angka / Operator]
+    F1 --> F2{User Tekan '=' ?}
+    F2 -->|Ya| F3["calculate\(\) — Evaluasi Ekspresi"]
+    F3 --> F4[Tampilkan Hasil di Display]
+    F4 --> F5["saveHistory\(\) → localStorage"]
+    F5 --> F1
+    F2 -->|Tidak| F1
 
-    D --> D1[Input Angka / Operator]
-    D1 --> D2{Tekan =}
-    D2 -->|Ya| D3[Hitung Hasil]
-    D3 --> D4[Tampilkan Hasil di Display]
-    D4 --> D5[Simpan ke Riwayat - Local Storage]
-    D5 --> D1
-    D2 -->|Tidak| D1
+    E -->|"📐 Konverter"| G[Tab Konverter Aktif]
+    G --> G1["Pilih Kategori\n(length, weight, temperature, dll.)"]
+    G1 --> G2["updateUnits\(\) — Isi Dropdown Satuan"]
+    G2 --> G3[User Input Nilai]
+    G3 --> G4["convert\(\) — Hitung dengan Faktor Konversi"]
+    G4 --> G5[Tampilkan Hasil Konversi]
+    G5 --> G3
 
-    E --> E1[Pilih Kategori Satuan]
-    E1 --> E2[Input Nilai]
-    E2 --> E3[Pilih Satuan Asal & Tujuan]
-    E3 --> E4[Hitung Konversi]
-    E4 --> E5[Tampilkan Hasil]
-
-    F --> F1[Fetch Kurs dari API]
-    F1 --> F2[Input Jumlah]
-    F2 --> F3[Pilih Mata Uang Asal & Tujuan]
-    F3 --> F4[Hitung Konversi Real-time]
-    F4 --> F5[Tampilkan Hasil & Kurs]
+    E -->|"💱 Mata Uang"| H[Tab Mata Uang Aktif]
+    H --> H1["fetchExchangeRates\(\)\nGET api.exchangerate-api.com"]
+    H1 --> H2{API Berhasil?}
+    H2 -->|Ya| H3[Simpan Rates ke Variable]
+    H2 -->|Gagal| H4[Tampilkan Pesan Error]
+    H3 --> H5[User Input Jumlah & Pilih Mata Uang]
+    H5 --> H6["convertCurrency\(\) — Hitung Konversi"]
+    H6 --> H7[Tampilkan Hasil & Info Kurs]
+    H7 --> H5
 ```
 
-### Sequence Diagram - Currency Conversion
+### Sequence Diagram - Interaksi Ketiga Fitur
 
 ```mermaid
 sequenceDiagram
     actor User
-    participant Browser
+    participant Browser as Browser / JavaScript
     participant Laravel as Laravel Server
-    participant API as Exchange Rate API
+    participant SW as Service Worker
+    participant LS as Local Storage
+    participant API as ExchangeRate API
 
-    User->>Browser: Buka Tab Mata Uang
+    Note over User, API: === Memuat Halaman ===
+    User->>Browser: Akses localhost:8000
     Browser->>Laravel: GET / (route home)
-    Laravel-->>Browser: Render Blade Template
+    Laravel-->>Browser: Render calculator/index.blade.php
+    Browser->>SW: Register service worker
+    SW->>SW: Cache static assets (CSS, JS, images)
 
-    User->>Browser: Input jumlah & pilih mata uang
-    Browser->>API: Fetch exchange rates
-    API-->>Browser: JSON response (rates)
-    Browser->>Browser: Hitung konversi (JavaScript)
+    Note over User, API: === Kalkulator Ilmiah ===
+    User->>Browser: Klik tombol angka & operator
+    Browser->>Browser: appendNumber() / appendOperator()
+    User->>Browser: Klik tombol '='
+    Browser->>Browser: calculate() — eval ekspresi
+    Browser-->>User: Tampilkan hasil di display
+    Browser->>LS: saveHistory(operationText)
+
+    Note over User, API: === Konverter Satuan ===
+    User->>Browser: Pilih tab Konverter
+    Browser->>Browser: switchTab('conv')
+    User->>Browser: Pilih kategori (misal: length)
+    Browser->>Browser: updateUnits() — isi dropdown
+    User->>Browser: Input nilai & pilih satuan
+    Browser->>Browser: convert() — hitung dengan factors
     Browser-->>User: Tampilkan hasil konversi
 
-    User->>Browser: Klik Refresh Kurs
-    Browser->>API: Fetch latest rates
-    API-->>Browser: Updated JSON rates
-    Browser-->>User: Update tampilan kurs
+    Note over User, API: === Konverter Mata Uang ===
+    User->>Browser: Pilih tab Mata Uang
+    Browser->>Browser: switchTab('currency')
+    Browser->>API: GET /v4/latest/USD
+    API-->>Browser: JSON {rates: {IDR: 15800, ...}}
+    User->>Browser: Input jumlah & pilih mata uang
+    Browser->>Browser: convertCurrency()
+    Browser-->>User: Tampilkan hasil & kurs
+
+    Note over User, API: === Riwayat ===
+    User->>Browser: Lihat section Riwayat
+    Browser->>LS: loadHistory()
+    LS-->>Browser: Array of history items
+    Browser-->>User: Render daftar riwayat
 ```
 
 ### Class Diagram
@@ -174,66 +218,100 @@ sequenceDiagram
 classDiagram
     class CalculatorController {
         +index() View
-        +export(Request, format) Redirect
+        +export(Request request, String format) Redirect
     }
 
     class Controller {
         <<abstract>>
     }
 
-    class BladeView {
-        +calculator/index.blade.php
-        -tabs: calc, conv, currency
-        -history-section
+    class Routes {
+        GET / → CalculatorController.index
+        GET /export/format → CalculatorController.export
     }
 
-    class JavaScript_Script {
-        +clearDisplay()
-        +appendNumber(num)
-        +appendOperator(op)
-        +calculate()
-        +backspace()
-        +toggleDegRad()
-        +toggle2nd()
-        +memorySave()
-        +memoryRecall()
-        +memorySub()
-        +memoryClear()
-        +convert()
-        +switchTab(tab)
-        +saveHistory()
-        +loadHistory()
+    class ScriptJS {
+        -display: HTMLElement
+        -currentInput: String
+        -isDegree: Boolean
+        -isSecondary: Boolean
+        -memoryValue: Number
+        +switchTab(tab) void
+        +appendNumber(num) void
+        +appendOperator(op) void
+        +appendFunction(func) void
+        +appendPoint() void
+        +clearDisplay() void
+        +backspace() void
+        +calculate() void
+        +toggleMode() void
+        +toggleSecondary() void
+        +memoryClear() void
+        +memoryRead() void
+        +memoryAdd() void
+        +memorySub() void
+        +updateUnits() void
+        +convert() void
+        +swapUnits() void
+        +saveHistory(text) void
+        +loadHistory() void
+        +clearHistory() void
+        +toggleTheme() void
     }
 
-    class JavaScript_Currency {
-        +fetchRates()
-        +convertCurrency()
-        +refreshRates()
+    class CurrencyJS {
+        -CURRENCY_API: String
+        -exchangeRates: Object
+        -ratesLastUpdated: Date
+        -currencies: Object
+        +initCurrencyDropdowns() void
+        +fetchExchangeRates() Promise
+        +updateRateStatus() void
+        +convertCurrency() void
+        +swapCurrencies() void
+        +refreshRates() void
     }
 
-    class ServiceWorker {
-        +install()
-        +activate()
-        +fetch()
+    class ServiceWorkerSW {
+        -STATIC_CACHE: String
+        -DYNAMIC_CACHE: String
+        -CACHE_LIMIT: Number
+        +install() void
+        +activate() void
+        +fetch() Response
+        +cacheFirst(request) Response
+        +networkFirst(request) Response
+        +staleWhileRevalidate(request) Response
+        +limitCacheSize(name, max) void
     }
 
     class LocalStorage {
-        +getItem(key)
-        +setItem(key, value)
-        +removeItem(key)
+        +getItem(key) String
+        +setItem(key, value) void
+        +removeItem(key) void
+    }
+
+    class ExchangeRateAPI {
+        <<external>>
+        +GET /v4/latest/USD : JSON
     }
 
     Controller <|-- CalculatorController
-    CalculatorController --> BladeView : renders
-    BladeView --> JavaScript_Script : includes
-    BladeView --> JavaScript_Currency : includes
-    BladeView --> ServiceWorker : registers
-    JavaScript_Script --> LocalStorage : saves history
-    JavaScript_Currency ..> ExternalAPI : fetches rates
+    Routes --> CalculatorController : maps to
+    CalculatorController --> BladeTemplate : renders
+    BladeTemplate --> ScriptJS : loads
+    BladeTemplate --> CurrencyJS : loads
+    BladeTemplate --> ServiceWorkerSW : registers
+    ScriptJS --> LocalStorage : read/write history
+    CurrencyJS --> ExchangeRateAPI : fetch rates
+    ServiceWorkerSW --> LocalStorage : cache management
 
-    class ExternalAPI {
-        <<external>>
-        +GET /latest?base=USD
+    class BladeTemplate {
+        +calculator/index.blade.php
+        -tab: Kalkulator
+        -tab: Konverter Satuan
+        -tab: Mata Uang
+        -section: Riwayat
     }
 ```
 
