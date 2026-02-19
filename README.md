@@ -1,4 +1,12 @@
+<p align="center">
+  <img src="e-concalc-web/public/images/ecalc-banner.png" alt="E-Concalc Banner" width="600">
+</p>
+
 # 🧮 E-Concalc Monorepo by Falcon IOI
+
+<p align="center">
+  <img src="e-concalc-web/public/images/logo.png" alt="E-Concalc Logo" width="100">
+</p>
 
 Welcome to **E-Concalc** (Electronic Converter & Calculator), a full-featured scientific calculator and converter platform. This repository is a unified monorepo containing both the **Android Mobile App** and the **Laravel Website**.
 

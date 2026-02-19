@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/images/ecalc-banner.png" alt="E-Concalc Banner" width="600">
+</p>
+
 # 📚 Dokumentasi Project (Progress Report)
 
 ## E-Concalc Web — Scientific Calculator & Converter Platform
