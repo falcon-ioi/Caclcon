@@ -319,16 +319,15 @@ classDiagram
 
 ## 🎨 Mock-Up / Screenshots
 
-> **Catatan:** Screenshot akan ditambahkan setelah mockup tersedia.
-
-### 1. Halaman Kalkulator
-<!-- ![Calculator](docs/screenshots/01_calculator.png) -->
+### 1. Halaman Kalkulator Ilmiah
+![Kalkulator Ilmiah](docs/screenshots/01_calculator.png)
 
 ### 2. Halaman Konverter Satuan
-<!-- ![Unit Converter](docs/screenshots/02_converter.png) -->
+![Konverter Satuan](docs/screenshots/02_converter.png)
 
 ### 3. Halaman Konverter Mata Uang
-<!-- ![Currency Converter](docs/screenshots/03_currency.png) -->
+![Konverter Mata Uang](docs/screenshots/03_currency.png)
+
 
 ---
 
