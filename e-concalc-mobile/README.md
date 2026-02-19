@@ -1,12 +1,8 @@
 <p align="center">
-  <img src="../e-concalc-web/public/images/ecalc-banner.png" alt="E-Concalc Banner" width="600">
+  <img src="../docs/images/logo.png" alt="E-Concalc Logo" width="100">
 </p>
 
 # 📱 E-Concalc Mobile - Android Client
-
-<p align="center">
-  <img src="../e-concalc-web/public/images/logo.png" alt="E-Concalc Logo" width="100">
-</p>
 
 Aplikasi native Android untuk platform E-Concalc, dibangun dengan **Kotlin** dan **Jetpack Compose**. Aplikasi ini berfungsi sebagai kalkulator ilmiah dan konverter offline-first yang berdiri sendiri.
 
