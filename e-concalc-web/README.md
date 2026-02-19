@@ -1,23 +1,38 @@
 # 📚 Dokumentasi Project (Progress Report)
 
-## E-Concalc Web - Platform Kalkulator & Konverter Elektronik
-
-![Laravel](https://img.shields.io/badge/Laravel-11-red?logo=laravel)
-![PHP](https://img.shields.io/badge/PHP-8.2+-blue?logo=php)
-![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?logo=javascript&logoColor=black)
-![CSS3](https://img.shields.io/badge/CSS3-Dark--Theme-1572B6?logo=css3)
-![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)
-![PWA](https://img.shields.io/badge/PWA-Supported-5A0FC8?logo=pwa)
+## E-Concalc Web — Scientific Calculator & Converter Platform
 
 <p align="center">
-  <img src="public/images/ecalc-banner.png" alt="E-Concalc Banner" width="600"/>
+  <img src="public/images/logo.png" alt="E-Concalc Logo" width="120">
 </p>
+
+![Laravel](https://img.shields.io/badge/Laravel-10-red?logo=laravel)
+![PHP](https://img.shields.io/badge/PHP-8.1+-blue?logo=php)
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?logo=javascript&logoColor=black)
+![CSS3](https://img.shields.io/badge/CSS3-Custom-1572B6?logo=css3)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)
+![PWA](https://img.shields.io/badge/PWA-Supported-5A0FC8?logo=pwa)
 
 ---
 
 ## 📖 Deskripsi
 
-E-Concalc Web adalah platform kalkulator dan konverter berbasis web yang dirancang untuk kebutuhan akademik dan profesional. Aplikasi ini mendukung **Kalkulator Scientific** (dengan fungsi trigonometri, logaritma, dan memory), **Unit Converter** (10+ kategori konversi), serta **Currency Converter** (kurs real-time). Dibangun menggunakan dark theme dengan efek glassmorphism dan mendukung PWA (Progressive Web App).
+E-Concalc Web adalah platform kalkulator ilmiah dan konverter berbasis web yang dirancang untuk kebutuhan akademik dan penggunaan sehari-hari. Aplikasi ini mendukung **kalkulator ilmiah** lengkap dengan fungsi trigonometri dan memori, **konverter satuan** multi-kategori, serta **konverter mata uang** real-time.
+
+### Tujuan Utama:
+- Menyediakan kalkulator ilmiah online yang lengkap dan responsif
+- Mendukung konversi satuan untuk berbagai kategori (panjang, berat, suhu, kecepatan, luas, volume)
+- Menyediakan konversi mata uang real-time menggunakan API eksternal
+- Mendukung instalasi sebagai Progressive Web App (PWA)
+- Menyimpan riwayat perhitungan menggunakan local storage
+
+### Tech Stack:
+- **Backend:** Laravel 10
+- **Frontend:** Blade Templates + Vanilla JavaScript
+- **Styling:** Vanilla CSS (Glassmorphism Dark Theme)
+- **Database:** MySQL 8.0
+- **Build:** Vite
+- **PWA:** Service Worker + Web App Manifest
 
 ---
 
@@ -25,13 +40,14 @@ E-Concalc Web adalah platform kalkulator dan konverter berbasis web yang diranca
 
 | ID | User Story | Priority |
 |----|------------|----------|
-| US-01 | Sebagai user, saya ingin menggunakan kalkulator scientific dengan keyboard support | High |
-| US-02 | Sebagai user, saya ingin mengkonversi satuan antar kategori (panjang, berat, suhu, dll) | High |
-| US-03 | Sebagai user, saya ingin mengkonversi mata uang dengan kurs real-time | High |
-| US-04 | Sebagai user, saya ingin menyimpan history kalkulasi di local storage | Medium |
-| US-05 | Sebagai user, saya ingin menginstall aplikasi sebagai PWA untuk akses offline | Medium |
-| US-06 | Sebagai user, saya ingin menggunakan tombol 2nd untuk mengakses fungsi scientific tambahan | Medium |
-| US-07 | Sebagai user, saya ingin menggunakan memory functions (M+, M-, MR, MC) | Low |
+| US-01 | Sebagai user, saya ingin menggunakan kalkulator ilmiah dengan operasi trigonometri, logaritma, dan fungsi memori | High |
+| US-02 | Sebagai user, saya ingin menggunakan keyboard untuk input perhitungan agar lebih cepat | High |
+| US-03 | Sebagai user, saya ingin toggle antara mode `DEG` dan `RAD` untuk perhitungan trigonometri | Medium |
+| US-04 | Sebagai user, saya ingin mengonversi satuan antar berbagai kategori (panjang, berat, suhu, dll.) | High |
+| US-05 | Sebagai user, saya ingin mengonversi mata uang dengan kurs real-time | High |
+| US-06 | Sebagai user, saya ingin melihat riwayat perhitungan yang saya lakukan | Medium |
+| US-07 | Sebagai user, saya ingin menginstall aplikasi sebagai PWA di perangkat saya | Low |
+| US-08 | Sebagai user, saya ingin menggunakan tombol `2nd` untuk mengakses fungsi sekunder (sin⁻¹, cos⁻¹, dll.) | Medium |
 
 ---
 
@@ -41,41 +57,41 @@ E-Concalc Web adalah platform kalkulator dan konverter berbasis web yang diranca
 
 | ID | Feature | Deskripsi | Status |
 |----|---------|-----------|--------|
-| FR-01 | Scientific Calculator | Kalkulator dengan operasi dasar, trigonometri, logaritma, pangkat, akar | ✅ Done |
-| FR-02 | Unit Converter | Konversi satuan: panjang, berat, suhu, kecepatan, area, volume, dll | ✅ Done |
-| FR-03 | Currency Converter | Konversi mata uang dengan kurs API real-time | ✅ Done |
-| FR-04 | Keyboard Support | Input kalkulator via keyboard fisik | ✅ Done |
-| FR-05 | Memory Functions | M+, M-, MR, MC untuk menyimpan nilai sementara | ✅ Done |
-| FR-06 | 2nd Function Toggle | Tombol 2nd untuk mengakses sin⁻¹, cos⁻¹, tan⁻¹, dll | ✅ Done |
-| FR-07 | Calculation History | Riwayat kalkulasi tersimpan di local storage | ✅ Done |
-| FR-08 | PWA Support | Installable Progressive Web App dengan service worker | ✅ Done |
-| FR-09 | Export History | Export riwayat kalkulasi | ✅ Done |
-| FR-10 | Responsive Design | Tampilan responsif untuk desktop dan mobile browser | ✅ Done |
+| FR-01 | Scientific Calculator | Kalkulator dengan operasi dasar dan ilmiah | ✅ Done |
+| FR-02 | 2nd Function Toggle | Tombol 2nd untuk fungsi invers (sin⁻¹, cos⁻¹, tan⁻¹, dll.) | ✅ Done |
+| FR-03 | Memory Functions | M+, M-, MR, MC untuk manajemen memori kalkulator | ✅ Done |
+| FR-04 | DEG/RAD Mode | Toggle antara mode Degree dan Radian | ✅ Done |
+| FR-05 | Keyboard Input | Dukungan input via keyboard fisik | ✅ Done |
+| FR-06 | Unit Converter | Konversi antar satuan multi-kategori | ✅ Done |
+| FR-07 | Currency Converter | Konversi mata uang dengan kurs real-time | ✅ Done |
+| FR-08 | Calculation History | Riwayat perhitungan disimpan di local storage | ✅ Done |
+| FR-09 | PWA Support | Installable sebagai Progressive Web App | ✅ Done |
+| FR-10 | Responsive Design | Tampilan responsif untuk desktop dan mobile | ✅ Done |
 
 ### Non-Functional Requirements
 
 | ID | Requirement | Deskripsi |
 |----|-------------|-----------|
-| NFR-01 | Performance | Kalkulasi instan tanpa delay, caching kurs mata uang |
-| NFR-02 | Usability | Dark theme dengan glassmorphism, micro-animations |
-| NFR-03 | Accessibility | Keyboard support, semantic HTML |
-| NFR-04 | Reliability | Offline support via PWA dan service worker |
-| NFR-05 | Compatibility | Cross-browser support (Chrome, Firefox, Edge, Safari) |
+| NFR-01 | Performance | Perhitungan instan tanpa loading |
+| NFR-02 | Usability | UI intuitif dengan dark theme dan glassmorphism |
+| NFR-03 | Offline | Fitur kalkulator dan konverter satuan bekerja offline via PWA |
+| NFR-04 | Compatibility | Kompatibel dengan semua browser modern |
+| NFR-05 | Security | CSRF protection, input validation |
 
 ---
 
 ## 🎨 Mock-Up / Screenshots
 
-> 💡 *Screenshots akan ditambahkan. Silakan berikan gambar mockup untuk ditampilkan di sini.*
+> **Catatan:** Screenshot akan ditambahkan setelah mockup tersedia.
 
-### 1. Halaman Kalkulator Scientific
+### 1. Halaman Kalkulator
 <!-- ![Calculator](docs/screenshots/01_calculator.png) -->
 
-### 2. Halaman Unit Converter
-<!-- ![Unit Converter](docs/screenshots/02_unit_converter.png) -->
+### 2. Halaman Konverter Satuan
+<!-- ![Unit Converter](docs/screenshots/02_converter.png) -->
 
-### 3. Halaman Currency Converter
-<!-- ![Currency Converter](docs/screenshots/03_currency_converter.png) -->
+### 3. Halaman Konverter Mata Uang
+<!-- ![Currency Converter](docs/screenshots/03_currency.png) -->
 
 ---
 
@@ -87,9 +103,9 @@ E-Concalc Web adalah platform kalkulator dan konverter berbasis web yang diranca
 |-------|-----------|--------|
 | **1. Planning** | Requirement gathering, user story | PRD, User Stories |
 | **2. Analysis** | SRS, feature prioritization | Feature List, SRS Doc |
-| **3. Design** | UI/UX design, database design | Mockups, ERD |
-| **4. Development** | Coding, unit testing | Source code, tests |
-| **5. Testing** | Feature testing, cross-browser testing | Test cases |
+| **3. Design** | UI mockups, database design | Mockups, ERD |
+| **4. Development** | Coding, unit testing | Source code |
+| **5. Testing** | Feature testing, browser testing | Test cases |
 | **6. Deployment** | Server setup, deployment | Live application |
 | **7. Maintenance** | Bug fixes, feature updates | Patches, updates |
 
@@ -98,8 +114,9 @@ E-Concalc Web adalah platform kalkulator dan konverter berbasis web yang diranca
 ## 🚀 Instalasi
 
 ### Prerequisites
+
 Pastikan Anda sudah menginstall:
-- **PHP** >= 8.2
+- **PHP** >= 8.1
 - **Composer** >= 2.0
 - **Node.js** >= 18.0
 - **NPM** >= 9.0
@@ -107,12 +124,14 @@ Pastikan Anda sudah menginstall:
 - **Git**
 
 ### Langkah 1: Clone Repository
+
 ```bash
 git clone https://github.com/falcon-ioi/Caclcon.git
 cd Caclcon/e-concalc-web
 ```
 
 ### Langkah 2: Install Dependencies
+
 ```bash
 # Install PHP dependencies
 composer install
@@ -122,6 +141,7 @@ npm install
 ```
 
 ### Langkah 3: Konfigurasi Environment
+
 ```bash
 # Copy file environment
 cp .env.example .env
@@ -141,7 +161,18 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
-### Langkah 4: Jalankan Server
+### Langkah 4: Build Assets
+
+```bash
+# Build untuk production
+npm run build
+
+# atau untuk development (dengan hot reload)
+npm run dev
+```
+
+### Langkah 5: Jalankan Server
+
 ```bash
 php artisan serve
 ```
@@ -163,24 +194,28 @@ Aplikasi akan berjalan di: **http://localhost:8000**
 ```
 e-concalc-web/
 ├── app/
-│   └── Http/Controllers/     # Controller (CalculatorController)
+│   └── Http/Controllers/        # Controller (CalculatorController)
 ├── public/
-│   ├── css/style.css          # Main stylesheet (dark theme)
-│   ├── images/                # Logo & banner
-│   ├── manifest.json          # PWA manifest
-│   └── sw.js                  # Service Worker
+│   ├── css/style.css            # Stylesheet utama (dark theme)
+│   ├── images/                  # Logo & banner
+│   ├── manifest.json            # PWA manifest
+│   └── sw.js                    # Service Worker
 ├── resources/
-│   └── views/calculator/      # Blade templates
+│   └── views/
+│       └── calculator/          # Blade templates
 ├── routes/
-│   └── web.php                # Route definitions
+│   └── web.php                  # Route definitions
 ├── composer.json
-└── .env.example
+├── vite.config.js
+└── ...
 ```
 
 ---
 
 ## 📜 License
-All rights reserved.
+
+MIT License
 
 ## 👨‍💻 Author
-**Falcon IOI**
+
+Developed with ❤️ by **Falcon IOI**
