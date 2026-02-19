@@ -80,6 +80,165 @@ E-Concalc Web adalah platform kalkulator ilmiah dan konverter berbasis web yang 
 
 ---
 
+## 📊 UML Diagrams
+
+### Use Case Diagram
+
+```mermaid
+graph TD
+    subgraph "E-Concalc Web"
+        UC1["🖩 Menggunakan Kalkulator Ilmiah"]
+        UC2["🔢 Toggle Mode DEG/RAD"]
+        UC3["💾 Fungsi Memori M+/M-/MR/MC"]
+        UC4["🔄 Toggle Fungsi 2nd"]
+        UC5["⌨️ Input via Keyboard"]
+        UC6["📐 Konversi Satuan"]
+        UC7["💱 Konversi Mata Uang"]
+        UC8["📜 Melihat Riwayat"]
+        UC9["📲 Install PWA"]
+    end
+
+    User["👤 User"] --> UC1
+    User --> UC2
+    User --> UC3
+    User --> UC4
+    User --> UC5
+    User --> UC6
+    User --> UC7
+    User --> UC8
+    User --> UC9
+
+    UC7 -. "fetch API" .-> API["🌐 Exchange Rate API"]
+```
+
+### Activity Diagram - Calculator Flow
+
+```mermaid
+flowchart TD
+    A([Start]) --> B[Buka Halaman E-Concalc]
+    B --> C{Pilih Tab}
+
+    C -->|Kalkulator| D[Tampilkan Kalkulator Ilmiah]
+    C -->|Konverter| E[Tampilkan Konverter Satuan]
+    C -->|Mata Uang| F[Tampilkan Konverter Mata Uang]
+
+    D --> D1[Input Angka / Operator]
+    D1 --> D2{Tekan =}
+    D2 -->|Ya| D3[Hitung Hasil]
+    D3 --> D4[Tampilkan Hasil di Display]
+    D4 --> D5[Simpan ke Riwayat - Local Storage]
+    D5 --> D1
+    D2 -->|Tidak| D1
+
+    E --> E1[Pilih Kategori Satuan]
+    E1 --> E2[Input Nilai]
+    E2 --> E3[Pilih Satuan Asal & Tujuan]
+    E3 --> E4[Hitung Konversi]
+    E4 --> E5[Tampilkan Hasil]
+
+    F --> F1[Fetch Kurs dari API]
+    F1 --> F2[Input Jumlah]
+    F2 --> F3[Pilih Mata Uang Asal & Tujuan]
+    F3 --> F4[Hitung Konversi Real-time]
+    F4 --> F5[Tampilkan Hasil & Kurs]
+```
+
+### Sequence Diagram - Currency Conversion
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Browser
+    participant Laravel as Laravel Server
+    participant API as Exchange Rate API
+
+    User->>Browser: Buka Tab Mata Uang
+    Browser->>Laravel: GET / (route home)
+    Laravel-->>Browser: Render Blade Template
+
+    User->>Browser: Input jumlah & pilih mata uang
+    Browser->>API: Fetch exchange rates
+    API-->>Browser: JSON response (rates)
+    Browser->>Browser: Hitung konversi (JavaScript)
+    Browser-->>User: Tampilkan hasil konversi
+
+    User->>Browser: Klik Refresh Kurs
+    Browser->>API: Fetch latest rates
+    API-->>Browser: Updated JSON rates
+    Browser-->>User: Update tampilan kurs
+```
+
+### Class Diagram
+
+```mermaid
+classDiagram
+    class CalculatorController {
+        +index() View
+        +export(Request, format) Redirect
+    }
+
+    class Controller {
+        <<abstract>>
+    }
+
+    class BladeView {
+        +calculator/index.blade.php
+        -tabs: calc, conv, currency
+        -history-section
+    }
+
+    class JavaScript_Script {
+        +clearDisplay()
+        +appendNumber(num)
+        +appendOperator(op)
+        +calculate()
+        +backspace()
+        +toggleDegRad()
+        +toggle2nd()
+        +memorySave()
+        +memoryRecall()
+        +memorySub()
+        +memoryClear()
+        +convert()
+        +switchTab(tab)
+        +saveHistory()
+        +loadHistory()
+    }
+
+    class JavaScript_Currency {
+        +fetchRates()
+        +convertCurrency()
+        +refreshRates()
+    }
+
+    class ServiceWorker {
+        +install()
+        +activate()
+        +fetch()
+    }
+
+    class LocalStorage {
+        +getItem(key)
+        +setItem(key, value)
+        +removeItem(key)
+    }
+
+    Controller <|-- CalculatorController
+    CalculatorController --> BladeView : renders
+    BladeView --> JavaScript_Script : includes
+    BladeView --> JavaScript_Currency : includes
+    BladeView --> ServiceWorker : registers
+    JavaScript_Script --> LocalStorage : saves history
+    JavaScript_Currency ..> ExternalAPI : fetches rates
+
+    class ExternalAPI {
+        <<external>>
+        +GET /latest?base=USD
+    }
+```
+
+---
+
 ## 🎨 Mock-Up / Screenshots
 
 > **Catatan:** Screenshot akan ditambahkan setelah mockup tersedia.
