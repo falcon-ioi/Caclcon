@@ -1,0 +1,31 @@
+{
+    "name": "E-Concalc - Electronic Conversion Calculator",
+    "short_name": "E-Concalc",
+    "description": "Kalkulator ilmiah, konverter satuan, mata uang, finansial, dan kesehatan dalam satu aplikasi",
+    "start_url": "/Website/index.php",
+    "display": "standalone",
+    "background_color": "#0f172a",
+    "theme_color": "#4facfe",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "images/logo.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "images/logo.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "utilities",
+        "productivity",
+        "finance"
+    ],
+    "lang": "id",
+    "dir": "ltr"
+}

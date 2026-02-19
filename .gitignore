@@ -1,0 +1,41 @@
+# === IDE ===
+/.fleet
+/.idea
+/.vscode
+*.iml
+
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === Web (Laravel) ===
+e-concalc-web/.phpunit.cache
+e-concalc-web/node_modules
+e-concalc-web/public/build
+e-concalc-web/public/hot
+e-concalc-web/public/storage
+e-concalc-web/storage/*.key
+e-concalc-web/vendor
+e-concalc-web/.env
+e-concalc-web/.env.backup
+e-concalc-web/.env.production
+e-concalc-web/Homestead.json
+e-concalc-web/Homestead.yaml
+e-concalc-web/auth.json
+e-concalc-web/npm-debug.log
+e-concalc-web/yarn-error.log
+
+# === Mobile (Android) ===
+e-concalc-mobile/.gradle
+e-concalc-mobile/build
+e-concalc-mobile/app/build
+e-concalc-mobile/local.properties
+e-concalc-mobile/.idea/caches
+e-concalc-mobile/.idea/libraries
+e-concalc-mobile/.idea/modules.xml
+e-concalc-mobile/.idea/workspace.xml
+e-concalc-mobile/.idea/navEditor.xml
+e-concalc-mobile/.idea/assetWizardSettings.xml
+e-concalc-mobile/captures
+e-concalc-mobile/.externalNativeBuild
+e-concalc-mobile/.cxx
