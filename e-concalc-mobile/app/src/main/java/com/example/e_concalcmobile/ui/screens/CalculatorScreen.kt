@@ -5,7 +5,6 @@ import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
@@ -23,6 +22,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.e_concalcmobile.utils.HistoryManager
+import kotlinx.coroutines.launch
 import kotlin.math.*
 
 data class CalculationHistory(
@@ -45,10 +46,11 @@ data class CalculationHistory(
 fun CalculatorScreen() {
     val context = LocalContext.current
     val historyManager = remember { HistoryManager(context) }
-    
+    val scope = rememberCoroutineScope()
+
     var expression by remember { mutableStateOf("") }
     var displayResult by remember { mutableStateOf("0") }
-    var memory by remember { mutableDoubleStateOf(0.0) }
+    var memory by remember { mutableStateOf(0.0) }
     var isSecondMode by remember { mutableStateOf(false) }
     var isDegreeMode by remember { mutableStateOf(true) }
     var showHistory by remember { mutableStateOf(false) }
@@ -60,29 +62,34 @@ fun CalculatorScreen() {
         history = historyManager.loadHistory()
     }
 
-    // Save history when it changes
+    // Save history locally when it changes
     LaunchedEffect(history) {
         if (history.isNotEmpty()) {
             historyManager.saveHistory(history)
         } else {
-             historyManager.clearHistory()
+            historyManager.clearHistory()
         }
     }
 
     fun vibrate() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-            val vibrator = vibratorManager.defaultVibrator
-            vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK))
-        } else {
-            @Suppress("DEPRECATION")
-            val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE))
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
+                vibratorManager?.defaultVibrator?.vibrate(
+                    VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK)
+                )
             } else {
                 @Suppress("DEPRECATION")
-                vibrator.vibrate(10)
+                val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    vibrator?.vibrate(VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE))
+                } else {
+                    @Suppress("DEPRECATION")
+                    vibrator?.vibrate(10)
+                }
             }
+        } catch (_: Exception) {
+            // Silently ignore vibration errors
         }
     }
 
@@ -117,11 +124,17 @@ fun CalculatorScreen() {
         try {
             val result = evaluateExpression(expression, isDegreeMode)
             val resultStr = formatResult(result)
-            val newHistoryItem = CalculationHistory(expression, resultStr)
+            val expr = expression
+            val newHistoryItem = CalculationHistory(expr, resultStr)
             history = listOf(newHistoryItem) + history.take(49)
             displayResult = resultStr
             expression = resultStr
             justCalculated = true
+
+            // Sync to API
+            scope.launch {
+                historyManager.saveAndSync(expr, resultStr, "calc")
+            }
         } catch (_: Exception) {
             displayResult = "Error"
         }
@@ -135,7 +148,6 @@ fun CalculatorScreen() {
 
     fun backspace() {
         if (expression.isNotEmpty()) {
-            // Remove multi-char functions like "sin(", "cos(", etc.
             val funcs = listOf("asin(", "acos(", "atan(", "sin(", "cos(", "tan(", "log(", "ln(", "√(")
             val removed = funcs.firstOrNull { expression.endsWith(it) }
             expression = if (removed != null) {
@@ -164,7 +176,10 @@ fun CalculatorScreen() {
         HistorySheet(
             history = history,
             onDismiss = { showHistory = false },
-            onClear = { history = emptyList() },
+            onClear = {
+                history = emptyList()
+                scope.launch { historyManager.clearHistoryFromApi() }
+            },
             onSelect = { item ->
                 expression = item.result
                 displayResult = item.result
@@ -177,7 +192,7 @@ fun CalculatorScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF1a1a2e))
+            .background(Color(0xFF0F172A))
             .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
         // Display Area
@@ -185,8 +200,9 @@ fun CalculatorScreen() {
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(0.22f),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF16213e)),
-            shape = RoundedCornerShape(16.dp)
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)),
+            shape = RoundedCornerShape(20.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -194,7 +210,7 @@ fun CalculatorScreen() {
                     .padding(horizontal = 16.dp, vertical = 10.dp)
                     .pointerInput(Unit) {
                         detectHorizontalDragGestures { _, dragAmount ->
-                            if (dragAmount < -20) { // Swipe Left to delete
+                            if (dragAmount < -20) {
                                 backspace()
                                 vibrate()
                             }
@@ -212,8 +228,8 @@ fun CalculatorScreen() {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         // DEG/RAD badge
                         Surface(
-                            shape = RoundedCornerShape(6.dp),
-                            color = if (isDegreeMode) Color(0xFF0f3460) else Color(0xFF533483),
+                            shape = RoundedCornerShape(8.dp),
+                            color = if (isDegreeMode) Color(0xFF1E3A5F) else Color(0xFF4C1D95),
                             onClick = {
                                 isDegreeMode = !isDegreeMode
                                 vibrate()
@@ -222,7 +238,7 @@ fun CalculatorScreen() {
                         ) {
                             Text(
                                 text = if (isDegreeMode) "DEG" else "RAD",
-                                color = Color(0xFF00D4FF),
+                                color = Color(0xFF38BDF8),
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
@@ -231,12 +247,12 @@ fun CalculatorScreen() {
                         // Memory indicator
                         if (memory != 0.0) {
                             Surface(
-                                shape = RoundedCornerShape(6.dp),
-                                color = Color(0xFF1a1a40)
+                                shape = RoundedCornerShape(8.dp),
+                                color = Color(0xFF1E293B)
                             ) {
                                 Text(
                                     text = "M",
-                                    color = Color(0xFFFFB74D),
+                                    color = Color(0xFFFBBF24),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -246,16 +262,16 @@ fun CalculatorScreen() {
                     }
                     // History button
                     IconButton(
-                        onClick = { 
+                        onClick = {
                             vibrate()
-                            showHistory = true 
+                            showHistory = true
                         },
-                        modifier = Modifier.size(48.dp) // Larger touch target
+                        modifier = Modifier.size(48.dp)
                     ) {
                         Icon(
                             Icons.Default.History,
                             contentDescription = "History",
-                            tint = Color(0xFF8892b0),
+                            tint = Color(0xFF64748B),
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -264,7 +280,7 @@ fun CalculatorScreen() {
                 // Expression
                 Text(
                     text = expression.ifEmpty { " " },
-                    color = Color(0xFF8892b0),
+                    color = Color(0xFF94A3B8),
                     fontSize = 16.sp,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -275,7 +291,7 @@ fun CalculatorScreen() {
                 // Result
                 Text(
                     text = displayResult,
-                    color = Color(0xFF00D4FF),
+                    color = Color(0xFF38BDF8),
                     fontSize = 38.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
@@ -405,7 +421,8 @@ fun HistorySheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF16213e)
+        containerColor = Color(0xFF1E293B),
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -421,7 +438,7 @@ fun HistorySheet(
                 )
                 if (history.isNotEmpty()) {
                     IconButton(onClick = onClear) {
-                        Icon(Icons.Default.Delete, "Clear", tint = Color(0xFFFF6B6B))
+                        Icon(Icons.Default.Delete, "Clear", tint = Color(0xFFEF4444))
                     }
                 }
             }
@@ -429,11 +446,22 @@ fun HistorySheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             if (history.isEmpty()) {
-                Text(
-                    "No history yet",
-                    color = Color(0xFF8892b0),
-                    modifier = Modifier.padding(vertical = 32.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 40.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("📋", fontSize = 40.sp)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            "No history yet",
+                            color = Color(0xFF64748B),
+                            fontSize = 16.sp
+                        )
+                    }
+                }
             } else {
                 LazyColumn(
                     modifier = Modifier.heightIn(max = 400.dp)
@@ -443,18 +471,19 @@ fun HistorySheet(
                             onClick = { onSelect(item) },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 4.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFF0f3460))
+                                .padding(vertical = 3.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
+                            shape = RoundedCornerShape(12.dp)
                         ) {
-                            Column(modifier = Modifier.padding(12.dp)) {
+                            Column(modifier = Modifier.padding(14.dp)) {
                                 Text(
                                     item.expression,
-                                    color = Color(0xFF8892b0),
+                                    color = Color(0xFF94A3B8),
                                     fontSize = 14.sp
                                 )
                                 Text(
                                     "= ${item.result}",
-                                    color = Color(0xFF00D4FF),
+                                    color = Color(0xFF38BDF8),
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -481,49 +510,56 @@ fun CalculatorButton(
     onClick: () -> Unit
 ) {
     val backgroundColor = when {
-        isOperator && text == "=" -> Color(0xFF00D4FF)
-        isOperator -> Color(0xFF0f3460)
-        isFunction -> Color(0xFF1a1a40)
-        isMemory -> Color(0xFF1a1a40)
-        isSecond && isSecondActive -> Color(0xFFFF6B6B)
-        isSecond -> Color(0xFF533483)
-        isSpecial -> Color(0xFF16213e)
-        text == "AC" -> Color(0xFFFF6B6B)
-        else -> Color(0xFF16213e)
+        isOperator && text == "=" -> Brush.linearGradient(listOf(Color(0xFF0EA5E9), Color(0xFF38BDF8)))
+        isOperator -> Brush.linearGradient(listOf(Color(0xFF1E3A5F), Color(0xFF1E3A5F)))
+        isFunction -> Brush.linearGradient(listOf(Color(0xFF172554), Color(0xFF172554)))
+        isMemory -> Brush.linearGradient(listOf(Color(0xFF172554), Color(0xFF172554)))
+        isSecond && isSecondActive -> Brush.linearGradient(listOf(Color(0xFFEF4444), Color(0xFFF87171)))
+        isSecond -> Brush.linearGradient(listOf(Color(0xFF4C1D95), Color(0xFF6D28D9)))
+        isSpecial -> Brush.linearGradient(listOf(Color(0xFF1E293B), Color(0xFF1E293B)))
+        text == "AC" -> Brush.linearGradient(listOf(Color(0xFFEF4444), Color(0xFFF87171)))
+        else -> Brush.linearGradient(listOf(Color(0xFF1E293B), Color(0xFF1E293B)))
     }
 
     val textColor = when {
-        text == "=" -> Color(0xFF1a1a2e)
-        isOperator -> Color(0xFF00D4FF)
-        isFunction -> Color(0xFF64ffda)
-        isMemory -> Color(0xFFFFB74D)
+        text == "=" -> Color.White
+        isOperator -> Color(0xFF38BDF8)
+        isFunction -> Color(0xFF34D399)
+        isMemory -> Color(0xFFFBBF24)
         text == "AC" -> Color.White
-        isSpecial -> Color(0xFF00D4FF)
-        else -> Color.White
+        isSpecial -> Color(0xFF38BDF8)
+        else -> Color(0xFFE2E8F0)
     }
 
     Button(
         onClick = onClick,
         modifier = Modifier
             .aspectRatio(1f)
-            .clip(RoundedCornerShape(12.dp)),
-        colors = ButtonDefaults.buttonColors(containerColor = backgroundColor),
+            .clip(RoundedCornerShape(14.dp)),
+        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
         contentPadding = PaddingValues(2.dp),
         elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
     ) {
-        Text(
-            text = text,
-            color = textColor,
-            fontSize = when {
-                text.length > 4 -> 10.sp
-                text.length > 3 -> 11.sp
-                text.length > 2 -> 12.sp
-                else -> 14.sp
-            },
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            maxLines = 1
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor, RoundedCornerShape(14.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = text,
+                color = textColor,
+                fontSize = when {
+                    text.length > 4 -> 10.sp
+                    text.length > 3 -> 11.sp
+                    text.length > 2 -> 12.sp
+                    else -> 14.sp
+                },
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                maxLines = 1
+            )
+        }
     }
 }
 
@@ -685,4 +721,3 @@ private fun formatResult(value: Double): String {
         String.format("%.10f", value).trimEnd('0').trimEnd('.')
     }
 }
-

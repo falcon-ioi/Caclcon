@@ -21,4 +21,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "E-Concalc Mobile"
 include(":app")
-include(":app")

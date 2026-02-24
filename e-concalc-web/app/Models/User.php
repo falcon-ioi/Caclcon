@@ -42,21 +42,10 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
-        'settings' => 'array',
     ];
 
     public function riwayat()
     {
         return $this->hasMany(Riwayat::class);
-    }
-
-    public function financialPlans()
-    {
-        return $this->hasMany(FinancialPlan::class);
-    }
-
-    public function healthLogs()
-    {
-        return $this->hasMany(HealthLog::class);
     }
 }

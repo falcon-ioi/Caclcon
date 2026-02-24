@@ -13,7 +13,8 @@ class Riwayat extends Model
 
     protected $fillable = [
         'user_id',
-        'operasi'
+        'operasi',
+        'tipe',
     ];
 
     public function user()

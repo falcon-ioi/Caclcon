@@ -82,7 +82,7 @@ function toggleMode() {
 function toggleSecondary() {
     isSecondary = !isSecondary;
     document.getElementById('btn-2nd').classList.toggle('active');
-    
+
     // Toggle button labels
     const btnSin = document.getElementById('btn-sin');
     const btnCos = document.getElementById('btn-cos');
@@ -178,13 +178,13 @@ function calculate() {
 
         let result = new Function('return ' + evalString)();
         let operationString = currentInput + ' = ' + result;
-        
+
         // Format Result limit decimals
         if (!Number.isInteger(result)) result = parseFloat(result.toFixed(8));
-        
+
         display.value = result;
         currentInput = result.toString();
-        
+
         saveHistory(operationString);
 
     } catch (e) {
@@ -245,7 +245,7 @@ function updateUnits() {
     }
 }
 
-window.onload = function() {
+window.onload = function () {
     updateUnits();
     loadHistory(); // Load from LocalStorage
 };
@@ -279,12 +279,12 @@ function convert() {
 
     let formattedResult = parseFloat(result.toFixed(6));
     resultDisplay.innerText = formattedResult;
-    
+
     // Save to history after delay
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
-        saveHistory(`${val} ${from} = ${formattedResult} ${to}`);
-    }, 1500); 
+        saveHistory(`${val} ${from} = ${formattedResult} ${to}`, 'conv');
+    }, 1500);
 }
 
 function swapUnits() {
@@ -297,28 +297,88 @@ function swapUnits() {
     convert();
 }
 
-// --- LocalStorage History Logic ---
-function saveHistory(operationText) {
-    let history = JSON.parse(localStorage.getItem('econcalc_history') || '[]');
+// --- History Logic (Per-user LocalStorage + API Sync) ---
+function getHistoryKey() {
+    if (window.AUTH && window.AUTH.isLoggedIn && window.AUTH.user) {
+        return 'econcalc_history_user_' + window.AUTH.user.id;
+    }
+    return 'econcalc_history_guest';
+}
+
+function saveHistory(operationText, tipe = 'calc') {
+    // Always save to localStorage
+    const key = getHistoryKey();
+    let history = JSON.parse(localStorage.getItem(key) || '[]');
     const now = new Date().toLocaleString();
-    
-    // Add new item
-    history.unshift({ op: operationText, time: now });
-    
-    // Limit to 20 items
-    if (history.length > 20) history.pop();
-    
-    localStorage.setItem('econcalc_history', JSON.stringify(history));
+    history.unshift({ op: operationText, time: now, tipe: tipe });
+    if (history.length > 50) history.pop();
+    localStorage.setItem(key, JSON.stringify(history));
     loadHistory();
+
+    // Also sync to API if logged in
+    if (window.AUTH && window.AUTH.isLoggedIn) {
+        fetch('/api/history', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': window.AUTH.csrfToken
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ operasi: operationText, tipe: tipe })
+        }).catch(err => console.warn('History sync failed:', err));
+    }
 }
 
 function loadHistory() {
     const tbody = document.getElementById('history-body');
     if (!tbody) return;
-    
+
+    // If logged in, try to load from API first
+    if (window.AUTH && window.AUTH.isLoggedIn) {
+        fetch('/api/history', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': window.AUTH.csrfToken
+            },
+            credentials: 'same-origin'
+        })
+            .then(res => res.json())
+            .then(json => {
+                if (json.data && json.data.length > 0) {
+                    renderHistory(tbody, json.data.map(item => ({
+                        op: item.operasi,
+                        time: new Date(item.waktu).toLocaleString()
+                    })));
+                } else {
+                    renderHistoryFromLocal(tbody);
+                }
+            })
+            .catch(() => renderHistoryFromLocal(tbody));
+    } else {
+        renderHistoryFromLocal(tbody);
+    }
+}
+
+function renderHistoryFromLocal(tbody) {
+    const key = getHistoryKey();
+    const history = JSON.parse(localStorage.getItem(key) || '[]');
+    renderHistory(tbody, history);
+}
+
+function renderHistory(tbody, history) {
     tbody.innerHTML = '';
-    const history = JSON.parse(localStorage.getItem('econcalc_history') || '[]');
-    
+    if (!history || history.length === 0) {
+        const row = tbody.insertRow();
+        const cell = row.insertCell(0);
+        cell.colSpan = 2;
+        cell.textContent = 'Belum ada riwayat';
+        cell.style.textAlign = 'center';
+        cell.style.color = '#64748b';
+        cell.style.padding = '20px';
+        return;
+    }
     history.forEach(item => {
         const row = tbody.insertRow();
         const cellOp = row.insertCell(0);
@@ -329,8 +389,21 @@ function loadHistory() {
 }
 
 function clearHistory() {
-    localStorage.removeItem('econcalc_history');
+    const key = getHistoryKey();
+    localStorage.removeItem(key);
     loadHistory();
+
+    // Also clear on API if logged in
+    if (window.AUTH && window.AUTH.isLoggedIn) {
+        fetch('/api/history', {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': window.AUTH.csrfToken
+            },
+            credentials: 'same-origin'
+        }).catch(err => console.warn('History clear sync failed:', err));
+    }
 }
 
 // --- Theme Toggle ---
@@ -340,7 +413,7 @@ function toggleTheme() {
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
     html.setAttribute('data-theme', newTheme);
     localStorage.setItem('econcalc-theme', newTheme);
-    
+
     const icon = document.getElementById('theme-icon');
     if (icon) icon.textContent = newTheme === 'light' ? '☀️' : '🌙';
 }

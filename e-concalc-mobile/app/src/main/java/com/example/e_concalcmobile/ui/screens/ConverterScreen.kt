@@ -11,35 +11,52 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.e_concalcmobile.utils.HistoryManager
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConverterScreen() {
+    val context = LocalContext.current
+    val historyManager = remember { HistoryManager(context) }
+    val scope = rememberCoroutineScope()
+
     var inputValue by remember { mutableStateOf("") }
     var result by remember { mutableStateOf("") }
-    var selectedCategoryIdx by remember { mutableIntStateOf(0) }
-    var fromUnitIdx by remember { mutableIntStateOf(0) }
-    var toUnitIdx by remember { mutableIntStateOf(1) }
+    var selectedCategoryIdx by remember { mutableStateOf(0) }
+    var fromUnitIdx by remember { mutableStateOf(0) }
+    var toUnitIdx by remember { mutableStateOf(1) }
     var showCategoryPicker by remember { mutableStateOf(false) }
     var showFromPicker by remember { mutableStateOf(false) }
     var showToPicker by remember { mutableStateOf(false) }
+    var showHistory by remember { mutableStateOf(false) }
+    var history by remember { mutableStateOf(listOf<CalculationHistory>()) }
 
     val categories = remember { getConverterCategories() }
     val currentCategory = categories[selectedCategoryIdx]
 
-    fun convert() {
+    // Load history on start
+    LaunchedEffect(Unit) {
+        history = historyManager.loadHistory()
+    }
+
+    fun convert(): String {
         val value = inputValue.toDoubleOrNull() ?: 0.0
-        if (value == 0.0) { result = "0"; return }
+        if (value == 0.0) return "0"
 
         val fromFactor = currentCategory.units[fromUnitIdx].factor
         val toFactor = currentCategory.units[toUnitIdx].factor
@@ -49,20 +66,32 @@ fun ConverterScreen() {
             val fromUnit = currentCategory.units[fromUnitIdx].symbol
             val toUnit = currentCategory.units[toUnitIdx].symbol
             val convertedResult = convertTemperature(value, fromUnit, toUnit)
-            result = formatConverterResult(convertedResult)
+            return formatConverterResult(convertedResult)
         } else {
             val converted = value * fromFactor / toFactor
-            result = formatConverterResult(converted)
+            return formatConverterResult(converted)
         }
     }
 
     LaunchedEffect(inputValue, fromUnitIdx, toUnitIdx, selectedCategoryIdx) {
-        convert()
+        result = convert()
     }
 
-    fun resetUnits() {
-        fromUnitIdx = 0
-        toUnitIdx = if (currentCategory.units.size > 1) 1 else 0
+    // Save conversion to history
+    fun saveConversion() {
+        val value = inputValue.toDoubleOrNull() ?: return
+        if (value == 0.0) return
+        val fromSymbol = currentCategory.units[fromUnitIdx].symbol
+        val toSymbol = currentCategory.units[toUnitIdx].symbol
+        val expr = "$inputValue $fromSymbol → $result $toSymbol"
+        val resultVal = "$result $toSymbol"
+        val newItem = CalculationHistory(expr, resultVal)
+        history = listOf(newItem) + history.take(49)
+        historyManager.saveHistory(history)
+
+        scope.launch {
+            historyManager.saveAndSync("$inputValue $fromSymbol", "$result $toSymbol", "conv")
+        }
     }
 
     // Pickers
@@ -101,27 +130,60 @@ fun ConverterScreen() {
         )
     }
 
+    if (showHistory) {
+        ConverterHistorySheet(
+            history = history,
+            onDismiss = { showHistory = false },
+            onClear = {
+                history = emptyList()
+                historyManager.clearHistory()
+                scope.launch { historyManager.clearHistoryFromApi() }
+            },
+            onSelect = { item ->
+                showHistory = false
+            }
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF1a1a2e))
+            .background(Color(0xFF0F172A))
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        Text(
-            text = "Unit Converter",
-            color = Color(0xFF00D4FF),
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Text(
-            text = "${categories.size} categories available",
-            color = Color(0xFF8892b0),
-            fontSize = 12.sp
-        )
+        // Header
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(
+                    text = "Unit Converter",
+                    color = Color(0xFF38BDF8),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "${categories.size} categories available",
+                    color = Color(0xFF64748B),
+                    fontSize = 12.sp
+                )
+            }
+            IconButton(
+                onClick = { showHistory = true },
+                modifier = Modifier.size(48.dp)
+            ) {
+                Icon(
+                    Icons.Default.History,
+                    contentDescription = "History",
+                    tint = Color(0xFF64748B),
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -129,8 +191,9 @@ fun ConverterScreen() {
         Card(
             onClick = { showCategoryPicker = true },
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF16213e)),
-            shape = RoundedCornerShape(12.dp)
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             Row(
                 modifier = Modifier
@@ -140,10 +203,10 @@ fun ConverterScreen() {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(currentCategory.icon, fontSize = 24.sp)
+                    Text(currentCategory.icon, fontSize = 28.sp)
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
-                        Text("Category", color = Color(0xFF8892b0), fontSize = 12.sp)
+                        Text("Category", color = Color(0xFF64748B), fontSize = 11.sp)
                         Text(
                             currentCategory.name,
                             color = Color.White,
@@ -152,7 +215,7 @@ fun ConverterScreen() {
                         )
                     }
                 }
-                Text("▼", color = Color(0xFF8892b0))
+                Text("▼", color = Color(0xFF64748B))
             }
         }
 
@@ -162,15 +225,17 @@ fun ConverterScreen() {
         OutlinedTextField(
             value = inputValue,
             onValueChange = { inputValue = it },
-            label = { Text("Value", color = Color(0xFF8892b0)) },
+            label = { Text("Value", color = Color(0xFF64748B)) },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFF00D4FF),
-                unfocusedBorderColor = Color(0xFF8892b0),
+                focusedBorderColor = Color(0xFF38BDF8),
+                unfocusedBorderColor = Color(0xFF334155),
                 focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White
+                unfocusedTextColor = Color(0xFFE2E8F0),
+                cursorColor = Color(0xFF38BDF8)
             ),
+            shape = RoundedCornerShape(14.dp),
             singleLine = true
         )
 
@@ -192,8 +257,8 @@ fun ConverterScreen() {
         ) {
             Surface(
                 shape = CircleShape,
-                color = Color(0xFF0f3460),
-                modifier = Modifier.size(40.dp),
+                color = Color(0xFF1E3A5F),
+                modifier = Modifier.size(44.dp),
                 onClick = {
                     val temp = fromUnitIdx
                     fromUnitIdx = toUnitIdx
@@ -204,7 +269,7 @@ fun ConverterScreen() {
                     Icon(
                         Icons.Default.SwapVert,
                         contentDescription = "Swap",
-                        tint = Color(0xFF00D4FF),
+                        tint = Color(0xFF38BDF8),
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -220,13 +285,44 @@ fun ConverterScreen() {
             onClick = { showToPicker = true }
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Convert button
+        Button(
+            onClick = { saveConversion() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+            shape = RoundedCornerShape(14.dp),
+            contentPadding = PaddingValues(0.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.horizontalGradient(listOf(Color(0xFF0EA5E9), Color(0xFF38BDF8))),
+                        RoundedCornerShape(14.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "Save to History",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Result Card
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF16213e)),
-            shape = RoundedCornerShape(16.dp)
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)),
+            shape = RoundedCornerShape(20.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
@@ -234,13 +330,15 @@ fun ConverterScreen() {
             ) {
                 Text(
                     text = "${inputValue.ifEmpty { "0" }} ${currentCategory.units[fromUnitIdx].symbol}",
-                    color = Color(0xFF8892b0),
+                    color = Color(0xFF94A3B8),
                     fontSize = 16.sp
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
+                Text("=", color = Color(0xFF475569), fontSize = 14.sp)
+                Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = "$result ${currentCategory.units[toUnitIdx].symbol}",
-                    color = Color(0xFF00D4FF),
+                    color = Color(0xFF38BDF8),
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -261,8 +359,9 @@ private fun UnitSelectorCard(
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF16213e)),
-        shape = RoundedCornerShape(12.dp)
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)),
+        shape = RoundedCornerShape(14.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
@@ -272,7 +371,7 @@ private fun UnitSelectorCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                Text(label, color = Color(0xFF8892b0), fontSize = 12.sp)
+                Text(label, color = Color(0xFF64748B), fontSize = 11.sp, fontWeight = FontWeight.Medium)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     unit.name,
@@ -282,11 +381,11 @@ private fun UnitSelectorCard(
                 )
                 Text(
                     unit.symbol,
-                    color = Color(0xFF8892b0),
+                    color = Color(0xFF64748B),
                     fontSize = 12.sp
                 )
             }
-            Text("▼", color = Color(0xFF8892b0), fontSize = 16.sp)
+            Text("▼", color = Color(0xFF64748B), fontSize = 16.sp)
         }
     }
 }
@@ -302,7 +401,8 @@ private fun ConverterPickerSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF16213e)
+        containerColor = Color(0xFF1E293B),
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -320,27 +420,104 @@ private fun ConverterPickerSheet(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(
-                                if (isSelected) Color(0xFF0f3460) else Color.Transparent,
-                                RoundedCornerShape(8.dp)
+                                if (isSelected) Color(0xFF1E3A5F) else Color.Transparent,
+                                RoundedCornerShape(10.dp)
                             )
                             .clickable { onSelect(index) }
-                            .padding(horizontal = 12.dp, vertical = 12.dp),
+                            .padding(horizontal = 14.dp, vertical = 14.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
                             items[index],
-                            color = if (isSelected) Color(0xFF00D4FF) else Color.White,
+                            color = if (isSelected) Color(0xFF38BDF8) else Color(0xFFE2E8F0),
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                         )
                         if (isSelected) {
-                            Text("✓", color = Color(0xFF00D4FF), fontWeight = FontWeight.Bold)
+                            Text("✓", color = Color(0xFF38BDF8), fontWeight = FontWeight.Bold)
                         }
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ConverterHistorySheet(
+    history: List<CalculationHistory>,
+    onDismiss: () -> Unit,
+    onClear: () -> Unit,
+    onSelect: (CalculationHistory) -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = Color(0xFF1E293B),
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Conversion History",
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                if (history.isNotEmpty()) {
+                    IconButton(onClick = onClear) {
+                        Icon(Icons.Default.Delete, "Clear", tint = Color(0xFFEF4444))
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            if (history.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 40.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("📐", fontSize = 40.sp)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("No conversion history", color = Color(0xFF64748B), fontSize = 16.sp)
+                    }
+                }
+            } else {
+                LazyColumn(modifier = Modifier.heightIn(max = 400.dp)) {
+                    items(history) { item ->
+                        Card(
+                            onClick = { onSelect(item) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 3.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(14.dp)) {
+                                Text(item.expression, color = Color(0xFF94A3B8), fontSize = 14.sp)
+                                Text(
+                                    "= ${item.result}",
+                                    color = Color(0xFF38BDF8),
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
@@ -440,7 +617,6 @@ private fun getConverterCategories(): List<ConverterCategory> = listOf(
         UnitItem("Gigabyte", "GB", 8589934592.0),
         UnitItem("Terabyte", "TB", 8.796093022208e12)
     )),
-    // === NEW CATEGORIES ===
     ConverterCategory("Time", "⏱️", listOf(
         UnitItem("Nanosecond", "ns", 1e-9),
         UnitItem("Microsecond", "μs", 1e-6),

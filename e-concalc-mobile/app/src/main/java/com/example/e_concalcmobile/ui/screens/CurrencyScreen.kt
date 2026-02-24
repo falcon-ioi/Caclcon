@@ -11,6 +11,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SwapVert
@@ -18,6 +20,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -26,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.e_concalcmobile.utils.HistoryManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.net.HttpURLConnection
@@ -40,14 +44,17 @@ data class CurrencyInfo(val code: String, val name: String, val flag: String)
 fun CurrencyScreen() {
     val context = LocalContext.current
     val historyManager = remember { HistoryManager(context) }
-    
+    val scope = rememberCoroutineScope()
+
     var amount by remember { mutableStateOf("1") }
     var fromCurrency by remember { mutableStateOf("USD") }
     var toCurrency by remember { mutableStateOf("IDR") }
     var result by remember { mutableStateOf("") }
     var showFromPicker by remember { mutableStateOf(false) }
     var showToPicker by remember { mutableStateOf(false) }
-    
+    var showHistory by remember { mutableStateOf(false) }
+    var history by remember { mutableStateOf(listOf<CalculationHistory>()) }
+
     // API State
     var rates by remember { mutableStateOf(getOfflineRates()) }
     var isLoading by remember { mutableStateOf(false) }
@@ -56,9 +63,12 @@ fun CurrencyScreen() {
 
     val currencies = remember { getCurrencies() }
 
-    // Load cached rates on start
+    // Load cached rates + history on start
     LaunchedEffect(Unit) {
-        val (cachedRates, timestamp) = historyManager.loadRates()
+        history = historyManager.loadHistory()
+        val loaded: Pair<Map<String, Double>?, Long> = historyManager.loadRates()
+        val cachedRates = loaded.first
+        val timestamp = loaded.second
         if (cachedRates != null) {
             rates = cachedRates
             val date = Date(timestamp)
@@ -66,7 +76,7 @@ fun CurrencyScreen() {
             lastUpdated = "Cached: ${format.format(date)}"
         }
     }
-    
+
     // Fetch Rates Function
     suspend fun fetchRates() {
         isLoading = true
@@ -84,17 +94,17 @@ fun CurrencyScreen() {
                     val json = JSONObject(response)
                     val ratesJson = json.getJSONObject("rates")
                     val dateStr = json.getString("date")
-                    
+
                     val newRates = mutableMapOf<String, Double>()
                     val keys = ratesJson.keys()
                     while (keys.hasNext()) {
                         val key = keys.next()
                         newRates[key] = ratesJson.getDouble(key)
                     }
-                    
+
                     withContext(Dispatchers.Main) {
                         rates = newRates
-                        lastUpdated = "Live Rates: $dateStr"
+                        lastUpdated = "Live: $dateStr"
                         historyManager.saveRates(newRates)
                     }
                 } else {
@@ -103,15 +113,14 @@ fun CurrencyScreen() {
             }
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
-                apiError = "Failed to fetch live rates. Using offline/cached data."
-                // Keep using offline rates
+                apiError = "Failed to fetch rates"
             }
         } finally {
             isLoading = false
         }
     }
 
-    // Initial Fetch (if cache is old or missing, could add logic here, but let's just fetch always)
+    // Initial Fetch
     LaunchedEffect(Unit) {
         fetchRates()
     }
@@ -132,6 +141,21 @@ fun CurrencyScreen() {
         updateResult()
     }
 
+    // Save conversion to history
+    fun saveConversion() {
+        val numValue = amount.toDoubleOrNull() ?: return
+        if (numValue == 0.0) return
+        val expr = "$amount $fromCurrency → $result $toCurrency"
+        val resultVal = "$result $toCurrency"
+        val newItem = CalculationHistory(expr, resultVal)
+        history = listOf(newItem) + history.take(49)
+        historyManager.saveHistory(history)
+
+        scope.launch {
+            historyManager.saveAndSync("$amount $fromCurrency", "$result $toCurrency", "currency")
+        }
+    }
+
     if (showFromPicker) {
         CurrencyPickerDialog(
             currencies = currencies,
@@ -150,60 +174,112 @@ fun CurrencyScreen() {
         )
     }
 
+    if (showHistory) {
+        CurrencyHistorySheet(
+            history = history,
+            onDismiss = { showHistory = false },
+            onClear = {
+                history = emptyList()
+                historyManager.clearHistory()
+                scope.launch { historyManager.clearHistoryFromApi() }
+            },
+            onSelect = { showHistory = false }
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF1a1a2e))
+            .background(Color(0xFF0F172A))
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
+        // Header
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "Currency Converter",
-                color = Color(0xFF00D4FF),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
-            )
-            IconButton(
-                onClick = { 
-                    // No easy duplicate call, but state change triggers recompose if we moved it
-                    // Since fetchRates is inside, we can't easily call it from onClick directly 
-                    // without a scope. 
-                    // For now, let's just show the status
-                },
-                enabled = !isLoading
-            ) {
-                 if (isLoading) {
-                     CircularProgressIndicator(
-                         modifier = Modifier.size(24.dp),
-                         color = Color(0xFF00D4FF),
-                         strokeWidth = 2.dp
-                     )
-                 } else {
-                     // Placeholder for manual refresh if we refactor to ViewModel
-                 }
+            Column {
+                Text(
+                    text = "Currency Converter",
+                    color = Color(0xFF38BDF8),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Row {
+                // Refresh button — NOW WORKS
+                IconButton(
+                    onClick = {
+                        scope.launch { fetchRates() }
+                    },
+                    enabled = !isLoading
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(22.dp),
+                            color = Color(0xFF38BDF8),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Icon(
+                            Icons.Default.Refresh,
+                            contentDescription = "Refresh Rates",
+                            tint = Color(0xFF64748B),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+                // History button
+                IconButton(onClick = { showHistory = true }) {
+                    Icon(
+                        Icons.Default.History,
+                        contentDescription = "History",
+                        tint = Color(0xFF64748B),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(2.dp))
 
+        // Rate status
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = lastUpdated,
-                color = if (isLoading) Color(0xFF00D4FF) else if (lastUpdated.startsWith("Live")) Color(0xFF4CAF50) else Color(0xFFFFB74D),
-                fontSize = 12.sp
-            )
+            Surface(
+                shape = RoundedCornerShape(6.dp),
+                color = when {
+                    isLoading -> Color(0xFF1E3A5F)
+                    lastUpdated.startsWith("Live") -> Color(0xFF052E16)
+                    else -> Color(0xFF422006)
+                }
+            ) {
+                Text(
+                    text = if (isLoading) "Updating..." else lastUpdated,
+                    color = when {
+                        isLoading -> Color(0xFF38BDF8)
+                        lastUpdated.startsWith("Live") -> Color(0xFF4ADE80)
+                        else -> Color(0xFFFBBF24)
+                    },
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                )
+            }
             if (apiError != null) {
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "⚠️ Offline",
-                    color = Color(0xFFFF6B6B),
-                    fontSize = 12.sp
-                )
+                Surface(
+                    shape = RoundedCornerShape(6.dp),
+                    color = Color(0xFF450A0A)
+                ) {
+                    Text(
+                        text = "⚠ Offline",
+                        color = Color(0xFFF87171),
+                        fontSize = 11.sp,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                    )
+                }
             }
         }
 
@@ -213,15 +289,17 @@ fun CurrencyScreen() {
         OutlinedTextField(
             value = amount,
             onValueChange = { amount = it },
-            label = { Text("Amount", color = Color(0xFF8892b0)) },
+            label = { Text("Amount", color = Color(0xFF64748B)) },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFF00D4FF),
-                unfocusedBorderColor = Color(0xFF8892b0),
+                focusedBorderColor = Color(0xFF38BDF8),
+                unfocusedBorderColor = Color(0xFF334155),
                 focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White
+                unfocusedTextColor = Color(0xFFE2E8F0),
+                cursorColor = Color(0xFF38BDF8)
             ),
+            shape = RoundedCornerShape(14.dp),
             singleLine = true
         )
 
@@ -244,8 +322,8 @@ fun CurrencyScreen() {
         ) {
             Surface(
                 shape = CircleShape,
-                color = Color(0xFF0f3460),
-                modifier = Modifier.size(48.dp), // Check: Improved touch target
+                color = Color(0xFF1E3A5F),
+                modifier = Modifier.size(44.dp),
                 onClick = {
                     val temp = fromCurrency
                     fromCurrency = toCurrency
@@ -256,7 +334,7 @@ fun CurrencyScreen() {
                     Icon(
                         Icons.Default.SwapVert,
                         contentDescription = "Swap",
-                        tint = Color(0xFF00D4FF),
+                        tint = Color(0xFF38BDF8),
                         modifier = Modifier.size(28.dp)
                     )
                 }
@@ -273,51 +351,91 @@ fun CurrencyScreen() {
             onClick = { showToPicker = true }
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-        // Result Card
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF16213e)),
-            shape = RoundedCornerShape(16.dp)
+        // Save to history button
+        Button(
+            onClick = { saveConversion() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+            shape = RoundedCornerShape(14.dp),
+            contentPadding = PaddingValues(0.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.horizontalGradient(listOf(Color(0xFF0EA5E9), Color(0xFF38BDF8))),
+                        RoundedCornerShape(14.dp)
+                    ),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "$amount $fromCurrency =",
-                    color = Color(0xFF8892b0),
+                    "Save to History",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "$result $toCurrency",
-                    color = Color(0xFF00D4FF),
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Result Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)),
+            shape = RoundedCornerShape(20.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "$amount $fromCurrency",
+                    color = Color(0xFF94A3B8),
+                    fontSize = 16.sp
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text("=", color = Color(0xFF475569), fontSize = 14.sp)
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "$result $toCurrency",
+                    color = Color(0xFF38BDF8),
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
         // Exchange Rate Info
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF0f3460)),
-            shape = RoundedCornerShape(12.dp)
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)),
+            shape = RoundedCornerShape(14.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("Exchange Rate", color = Color.White, fontWeight = FontWeight.Bold)
+                Text(
+                    "Exchange Rate",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "1 $fromCurrency = ${formatCurrencyResult(convert(1.0, fromCurrency, toCurrency))} $toCurrency",
-                    color = Color(0xFF8892b0)
+                    color = Color(0xFF94A3B8),
+                    fontSize = 13.sp
                 )
                 Text(
                     text = "1 $toCurrency = ${formatCurrencyResult(convert(1.0, toCurrency, fromCurrency))} $fromCurrency",
-                    color = Color(0xFF8892b0)
+                    color = Color(0xFF94A3B8),
+                    fontSize = 13.sp
                 )
             }
         }
@@ -337,9 +455,10 @@ private fun CurrencySelectorCard(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(72.dp), // Check: Fixed minimum height for touch target
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF16213e)),
-        shape = RoundedCornerShape(12.dp)
+            .height(72.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)),
+        shape = RoundedCornerShape(14.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
@@ -349,7 +468,7 @@ private fun CurrencySelectorCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(verticalArrangement = Arrangement.Center) {
-                Text(label, color = Color(0xFF8892b0), fontSize = 12.sp)
+                Text(label, color = Color(0xFF64748B), fontSize = 11.sp, fontWeight = FontWeight.Medium)
                 Spacer(modifier = Modifier.height(2.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
@@ -357,24 +476,22 @@ private fun CurrencySelectorCard(
                         fontSize = 24.sp
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Column {
-                        Text(
-                            currencyInfo?.code ?: "",
-                            color = Color.White,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    Text(
+                        currencyInfo?.code ?: "",
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         currencyInfo?.name ?: "",
-                        color = Color(0xFF8892b0),
+                        color = Color(0xFF64748B),
                         fontSize = 12.sp,
                         maxLines = 1
                     )
                 }
             }
-            Text("▼", color = Color(0xFF8892b0), fontSize = 16.sp)
+            Text("▼", color = Color(0xFF64748B), fontSize = 16.sp)
         }
     }
 }
@@ -388,8 +505,7 @@ private fun CurrencyPickerDialog(
     onDismiss: () -> Unit
 ) {
     var search by remember { mutableStateOf("") }
-    
-    // Use remember for filtering to optimize performance
+
     val filtered = remember(search, currencies) {
         if (search.isBlank()) currencies
         else currencies.filter {
@@ -400,7 +516,8 @@ private fun CurrencyPickerDialog(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF16213e)
+        containerColor = Color(0xFF1E293B),
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -415,15 +532,17 @@ private fun CurrencyPickerDialog(
             OutlinedTextField(
                 value = search,
                 onValueChange = { search = it },
-                placeholder = { Text("Search currency...", color = Color(0xFF8892b0)) },
-                leadingIcon = { Icon(Icons.Default.Search, "Search", tint = Color(0xFF8892b0)) },
+                placeholder = { Text("Search currency...", color = Color(0xFF64748B)) },
+                leadingIcon = { Icon(Icons.Default.Search, "Search", tint = Color(0xFF64748B)) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF00D4FF),
-                    unfocusedBorderColor = Color(0xFF8892b0),
+                    focusedBorderColor = Color(0xFF38BDF8),
+                    unfocusedBorderColor = Color(0xFF334155),
                     focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White
+                    unfocusedTextColor = Color(0xFFE2E8F0),
+                    cursorColor = Color(0xFF38BDF8)
                 ),
+                shape = RoundedCornerShape(12.dp),
                 singleLine = true
             )
 
@@ -436,11 +555,11 @@ private fun CurrencyPickerDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(
-                                if (isSelected) Color(0xFF0f3460) else Color.Transparent,
-                                RoundedCornerShape(8.dp)
+                                if (isSelected) Color(0xFF1E3A5F) else Color.Transparent,
+                                RoundedCornerShape(10.dp)
                             )
                             .clickable { onSelect(currency.code) }
-                            .padding(horizontal = 12.dp, vertical = 14.dp), // Check: Increased vertical padding for list items
+                            .padding(horizontal = 12.dp, vertical = 14.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(currency.flag, fontSize = 24.sp)
@@ -448,23 +567,100 @@ private fun CurrencyPickerDialog(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 currency.code,
-                                color = if (isSelected) Color(0xFF00D4FF) else Color.White,
+                                color = if (isSelected) Color(0xFF38BDF8) else Color(0xFFE2E8F0),
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
                                 currency.name,
-                                color = Color(0xFF8892b0),
+                                color = Color(0xFF64748B),
                                 fontSize = 12.sp
                             )
                         }
                         if (isSelected) {
-                            Text("✓", color = Color(0xFF00D4FF), fontWeight = FontWeight.Bold)
+                            Text("✓", color = Color(0xFF38BDF8), fontWeight = FontWeight.Bold)
                         }
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CurrencyHistorySheet(
+    history: List<CalculationHistory>,
+    onDismiss: () -> Unit,
+    onClear: () -> Unit,
+    onSelect: (CalculationHistory) -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = Color(0xFF1E293B),
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Currency History",
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                if (history.isNotEmpty()) {
+                    IconButton(onClick = onClear) {
+                        Icon(Icons.Default.Delete, "Clear", tint = Color(0xFFEF4444))
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            if (history.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 40.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("💱", fontSize = 40.sp)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("No currency history", color = Color(0xFF64748B), fontSize = 16.sp)
+                    }
+                }
+            } else {
+                LazyColumn(modifier = Modifier.heightIn(max = 400.dp)) {
+                    items(history) { item ->
+                        Card(
+                            onClick = { onSelect(item) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 3.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(14.dp)) {
+                                Text(item.expression, color = Color(0xFF94A3B8), fontSize = 14.sp)
+                                Text(
+                                    "= ${item.result}",
+                                    color = Color(0xFF38BDF8),
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
@@ -589,4 +785,3 @@ private fun getOfflineRates(): Map<String, Double> = mapOf(
     "BHD" to 0.377,
     "OMR" to 0.385
 )
-

@@ -285,7 +285,7 @@ function convertCurrency() {
     clearTimeout(window.currencyDebounce);
     window.currencyDebounce = setTimeout(() => {
         if (typeof saveHistory === 'function') {
-            saveHistory(`Kurs: ${amount.toLocaleString()} ${from} = ${formattedResult} ${to}`);
+            saveHistory(`Kurs: ${amount.toLocaleString()} ${from} = ${formattedResult} ${to}`, 'currency');
         }
     }, 1000);
 }

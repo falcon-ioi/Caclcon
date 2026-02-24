@@ -8,13 +8,116 @@
 <link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-    /* Simplification: Removed styles for plans and charts */
     .history-section { margin-top: 2rem; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; }
+
+    /* === Splash Screen === */
+    .splash-overlay {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: #0f172a;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    .splash-overlay.fade-out {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .splash-logo {
+        width: 90px;
+        height: 90px;
+        background: linear-gradient(135deg, #4facfe, #00f2fe);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 42px;
+        animation: splashPop 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        box-shadow: 0 10px 40px rgba(79, 172, 254, 0.3);
+    }
+
+    .splash-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #00d4ff;
+        margin-top: 16px;
+        opacity: 0;
+        animation: splashFadeIn 0.5s ease 0.3s forwards;
+    }
+
+    .splash-tagline {
+        color: #475569;
+        font-size: 0.85rem;
+        margin-top: 6px;
+        opacity: 0;
+        animation: splashFadeIn 0.5s ease 0.5s forwards;
+    }
+
+    .splash-bar {
+        width: 120px;
+        height: 3px;
+        background: rgba(255,255,255,0.08);
+        border-radius: 3px;
+        margin-top: 28px;
+        overflow: hidden;
+        opacity: 0;
+        animation: splashFadeIn 0.3s ease 0.6s forwards;
+    }
+
+    .splash-bar-fill {
+        width: 0;
+        height: 100%;
+        background: linear-gradient(90deg, #4facfe, #00f2fe);
+        border-radius: 3px;
+        animation: splashLoad 1.2s ease 0.7s forwards;
+    }
+
+    @keyframes splashPop {
+        from { transform: scale(0.5); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes splashFadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes splashLoad {
+        to { width: 100%; }
+    }
 </style>
 @endsection
 
 @section('content')
+{{-- Splash Screen --}}
+<div class="splash-overlay" id="splash-screen">
+    <div class="splash-logo">🖩</div>
+    <div class="splash-title">E-Concalc</div>
+    <div class="splash-tagline">Electronic Conversion Calculator</div>
+    <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+</div>
+
 <script>
+    // Show splash only once per session
+    (function() {
+        const splash = document.getElementById('splash-screen');
+        if (sessionStorage.getItem('econcalc_splash_shown')) {
+            splash.style.display = 'none';
+        } else {
+            sessionStorage.setItem('econcalc_splash_shown', '1');
+            setTimeout(function() {
+                splash.classList.add('fade-out');
+                setTimeout(function() { splash.style.display = 'none'; }, 500);
+            }, 2000);
+        }
+    })();
+
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('/sw.js')
@@ -27,7 +130,15 @@
 <header>
     <h1>E-Concalc</h1>
     <div class="user-info">
-        <!-- Login/Register buttons removed -->
+        @auth
+            <span style="color: #94a3b8; font-size: 0.85rem; margin-right: 10px;">👤 {{ Auth::user()->name }}</span>
+            <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                @csrf
+                <button type="submit" style="background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 0.8rem;">Logout</button>
+            </form>
+        @else
+            <a href="{{ route('login') }}" style="background: linear-gradient(135deg, #4facfe, #00f2fe); color: #0f172a; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-size: 0.8rem; font-weight: 600;">Login</a>
+        @endauth
     </div>
 </header>
 
@@ -207,9 +318,13 @@
 
 @section('scripts')
 <script>
-    // Removed Auth checks
+    // Pass auth state to JS
+    window.AUTH = {
+        isLoggedIn: {{ Auth::check() ? 'true' : 'false' }},
+        user: {!! Auth::check() ? json_encode(['id' => Auth::id(), 'name' => Auth::user()->name]) : 'null' !!},
+        csrfToken: '{{ csrf_token() }}'
+    };
 </script>
 <script src="{{ asset('js/script.js') }}?v={{ time() }}"></script>
 <script src="{{ asset('js/currency.js') }}?v={{ time() }}"></script>
-<!-- Removed financial.js and health.js -->
 @endsection
