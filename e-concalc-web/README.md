@@ -90,35 +90,9 @@ E-Concalc (Electronic Converter & Calculator) adalah platform kalkulator ilmiah 
 ### Use Case Diagram
 
 ```mermaid
-flowchart LR
+flowchart TD
     Guest(("👤 Guest"))
     User(("👤 User"))
-
-    subgraph Kalkulator["🖩 Kalkulator Ilmiah"]
-        A1(["Perhitungan Dasar & Ilmiah"])
-        A2(["Toggle DEG / RAD"])
-        A3(["Fungsi Memori"])
-        A4(["Fungsi 2nd"])
-        A5(["Input Keyboard"])
-    end
-
-    subgraph Konverter["📐 Konverter Satuan"]
-        B1(["Pilih Kategori"])
-        B2(["Konversi Nilai"])
-        B3(["Swap Satuan"])
-    end
-
-    subgraph MataUang["💱 Konverter Mata Uang"]
-        C1(["Konversi 160+ Mata Uang"])
-        C2(["Swap Mata Uang"])
-        C3(["Refresh Kurs"])
-    end
-
-    subgraph Auth["🔑 Autentikasi"]
-        Auth1(["Login Username/Password"])
-        Auth2(["Login Google OAuth"])
-        Auth3(["Register Akun Baru"])
-    end
 
     Guest --> Kalkulator
     Guest --> Konverter
@@ -131,6 +105,36 @@ flowchart LR
     User --> MataUang
     User --> E(["📜 Riwayat API Sync"])
     User --> F(["🚪 Logout"])
+
+    subgraph Kalkulator["🖩 Kalkulator Ilmiah"]
+        direction LR
+        A1(["Perhitungan Dasar & Ilmiah"])
+        A2(["DEG / RAD"])
+        A3(["Fungsi Memori"])
+        A4(["Fungsi 2nd"])
+        A5(["Input Keyboard"])
+    end
+
+    subgraph Konverter["📐 Konverter Satuan"]
+        direction LR
+        B1(["Pilih Kategori"])
+        B2(["Konversi Nilai"])
+        B3(["Swap Satuan"])
+    end
+
+    subgraph MataUang["💱 Konverter Mata Uang"]
+        direction LR
+        C1(["Konversi 160+ Mata Uang"])
+        C2(["Swap Mata Uang"])
+        C3(["Refresh Kurs"])
+    end
+
+    subgraph Auth["🔑 Autentikasi"]
+        direction LR
+        Auth1(["Login Username/Password"])
+        Auth2(["Login Google OAuth"])
+        Auth3(["Register Akun Baru"])
+    end
 
     C3 -.-> API[("🌐 Exchange Rate API")]
 ```
