@@ -87,59 +87,52 @@ E-Concalc (Electronic Converter & Calculator) adalah platform kalkulator ilmiah 
 
 ## 📊 UML Diagrams
 
-### Use Case Diagram
+### 1. Use Case Diagram
 
 ```mermaid
 flowchart TD
     Guest(("👤 Guest"))
-    User(("👤 User"))
+    User(("👤 Logged-in User"))
 
-    Guest --> Kalkulator
-    Guest --> Konverter
-    Guest --> MataUang
-    Guest --> D(["📜 Riwayat localStorage"])
-    Guest --> Auth
+    Guest --> A(["🖩 Kalkulator Ilmiah"])
+    Guest --> B(["📐 Konverter Satuan"])
+    Guest --> C(["💱 Konverter Mata Uang"])
+    Guest --> D(["📜 Riwayat (localStorage)"])
+    Guest --> Auth(["🔑 Login / Register"])
 
-    User --> Kalkulator
-    User --> Konverter
-    User --> MataUang
-    User --> E(["📜 Riwayat API Sync"])
+    User --> A
+    User --> B
+    User --> C
+    User --> E(["📜 Riwayat (API Sync)"])
     User --> F(["🚪 Logout"])
 
-    subgraph Kalkulator["🖩 Kalkulator Ilmiah"]
-        direction LR
-        A1(["Perhitungan Dasar & Ilmiah"])
-        A2(["DEG / RAD"])
-        A3(["Fungsi Memori"])
-        A4(["Fungsi 2nd"])
-        A5(["Input Keyboard"])
-    end
+    A --> A1(["Perhitungan Dasar & Ilmiah"])
+    A --> A2(["Toggle DEG / RAD"])
+    A --> A3(["Fungsi Memori"])
+    A --> A4(["Fungsi 2nd"])
+    A --> A5(["Input Keyboard"])
 
-    subgraph Konverter["📐 Konverter Satuan"]
-        direction LR
-        B1(["Pilih Kategori"])
-        B2(["Konversi Nilai"])
-        B3(["Swap Satuan"])
-    end
+    B --> B1(["Pilih Kategori"])
+    B --> B2(["Konversi Nilai"])
+    B --> B3(["Swap Satuan"])
 
-    subgraph MataUang["💱 Konverter Mata Uang"]
-        direction LR
-        C1(["Konversi 160+ Mata Uang"])
-        C2(["Swap Mata Uang"])
-        C3(["Refresh Kurs"])
-    end
-
-    subgraph Auth["🔑 Autentikasi"]
-        direction LR
-        Auth1(["Login Username/Password"])
-        Auth2(["Login Google OAuth"])
-        Auth3(["Register Akun Baru"])
-    end
-
+    C --> C1(["Konversi 160+ Mata Uang"])
+    C --> C2(["Swap Mata Uang"])
+    C --> C3(["Refresh Kurs"])
     C3 -.-> API[("🌐 Exchange Rate API")]
+
+    Auth --> Auth1(["Login Username/Password"])
+    Auth --> Auth2(["Login Google OAuth"])
+    Auth --> Auth3(["Register Akun Baru"])
+
+    E -.-> API2[("🌐 REST API /api/history")]
 ```
 
-### Activity Diagram - Calculator Flow
+---
+
+### 2. Activity Diagram
+
+#### a. Kalkulator Ilmiah
 
 ```mermaid
 flowchart TD
@@ -156,7 +149,21 @@ flowchart TD
     D -- Tidak --> C
 ```
 
-### Activity Diagram - Authentication
+#### b. Konverter Satuan
+
+```mermaid
+flowchart TD
+    A([Mulai]) --> B[Buka Tab Konverter]
+    B --> C[Pilih Kategori Satuan]
+    C --> D[Isi Dropdown Satuan Otomatis]
+    D --> E[Input Nilai]
+    E --> F[Pilih Satuan Asal & Tujuan]
+    F --> G[Hitung Konversi]
+    G --> H[Tampilkan Hasil]
+    H --> E
+```
+
+#### c. Autentikasi
 
 ```mermaid
 flowchart TD
@@ -170,12 +177,16 @@ flowchart TD
     F --> I{Valid?}
     G --> I
     H --> I
-    I -- Ya --> J[Buat Session + Redirect ke Halaman Utama]
+    I -- Ya --> J[Session + Redirect]
     I -- Tidak --> K[Tampilkan Error]
     K --> D
 ```
 
-### Sequence Diagram - Calculator with API Sync
+---
+
+### 3. Sequence Diagram
+
+#### a. Kalkulator dengan API Sync
 
 ```mermaid
 sequenceDiagram
@@ -183,7 +194,6 @@ sequenceDiagram
     participant Browser
     participant LocalStorage
     participant API as REST API
-    participant DB as MySQL
 
     User->>Browser: Input angka & operator
     User->>Browser: Tekan '='
@@ -191,14 +201,12 @@ sequenceDiagram
     Browser-->>User: Tampilkan hasil
     Browser->>LocalStorage: Simpan ke riwayat
     alt User Login
-        Browser->>API: POST /api/history
-        API->>DB: INSERT INTO riwayat
-        DB-->>API: OK
+        Browser->>API: POST /api/history (operasi, tipe)
         API-->>Browser: 201 Created
     end
 ```
 
-### Sequence Diagram - Login Flow
+#### b. Login & History Sync
 
 ```mermaid
 sequenceDiagram
@@ -208,18 +216,85 @@ sequenceDiagram
     participant DB as MySQL Database
 
     User->>Browser: Isi username & password
-    Browser->>Laravel: POST /login
+    Browser->>Laravel: POST /login (session) atau POST /api/login (token)
     Laravel->>DB: Verify credentials
     DB-->>Laravel: User data
-    Laravel-->>Browser: Session + redirect
+    Laravel-->>Browser: Auth session/token
     Browser->>Laravel: GET /api/history
-    Laravel->>DB: SELECT FROM riwayat WHERE user_id = ?
+    Laravel->>DB: SELECT * FROM riwayat WHERE user_id = ?
     DB-->>Laravel: History data
     Laravel-->>Browser: JSON response
     Browser-->>User: Tampilkan riwayat tersinkron
 ```
 
-### ERD (Entity Relationship Diagram)
+---
+
+### 4. Class Diagram
+
+```mermaid
+classDiagram
+    class User {
+        +id: bigint
+        +name: string
+        +email: string
+        +google_id: string
+        +password: string
+        +riwayat() HasMany
+    }
+
+    class Riwayat {
+        +id: bigint
+        +user_id: bigint
+        +operasi: text
+        +tipe: string
+        +user() BelongsTo
+    }
+
+    class AuthController {
+        +showLogin() View
+        +login(request) Redirect
+        +register(request) Redirect
+        +logout(request) Redirect
+        +handleGoogleCallback() Redirect
+    }
+
+    class ApiAuthController {
+        +login(request) JSON
+        +register(request) JSON
+        +googleLogin(request) JSON
+        +logout(request) JSON
+        +user(request) JSON
+    }
+
+    class HistoryController {
+        +index(request) JSON
+        +store(request) JSON
+        +clear(request) JSON
+        +destroy(request, id) JSON
+    }
+
+    class ScriptJS {
+        +calculate()
+        +saveHistory()
+        +loadHistory()
+        +clearHistory()
+    }
+
+    class CurrencyJS {
+        +fetchExchangeRates()
+        +convertCurrency()
+        +refreshRates()
+    }
+
+    User "1" --> "*" Riwayat : has many
+    AuthController --> User : manages web auth
+    ApiAuthController --> User : manages API auth
+    HistoryController --> Riwayat : CRUD via API
+    ScriptJS --> HistoryController : POST/GET/DELETE
+    CurrencyJS --> ScriptJS : shares history
+```
+
+### 5. ERD (Entity Relationship Diagram)
 
 ```mermaid
 erDiagram
