@@ -186,237 +186,195 @@ flowchart TD
 
 ### 3. Sequence Diagram
 
-#### a. Kalkulator Ilmiah - Perhitungan & Simpan Riwayat
+#### a. Kalkulator dengan API Sync
 
 ```mermaid
 sequenceDiagram
     actor User
     participant Browser as Browser (script.js)
-    participant LS as LocalStorage
+    participant LS as localStorage
     participant API as REST API (Laravel)
     participant DB as MySQL
 
     User->>Browser: Input angka & operator via button/keyboard
-    Browser->>Browser: appendNumber() / appendOperator()
-    Browser-->>User: Update display real-time
+    User->>Browser: Tekan '=' atau Enter
+    Browser->>Browser: Evaluasi ekspresi (math.js)
+    Browser-->>User: Tampilkan hasil di display
 
-    User->>Browser: Tekan '=' (calculate)
-    Browser->>Browser: Pre-processing ekspresi (DEG/RAD, sin→Math.sin)
-    Browser->>Browser: Evaluasi dengan new Function('return ' + expr)
+    Browser->>LS: setItem('calcHistory', JSON)
+    Browser-->>User: Update tabel riwayat di UI
 
-    alt Evaluasi Berhasil
-        Browser-->>User: Tampilkan hasil (format max 8 desimal)
-        Browser->>Browser: saveHistory("2+3 = 5", "calc")
-        Browser->>LS: localStorage.setItem(key, history[])
-        Note over LS: Max 50 entry, FIFO
-
-        alt window.AUTH.isLoggedIn === true
-            Browser->>API: POST /api/history {operasi, tipe, X-CSRF-TOKEN}
-            API->>API: Validate (operasi: required|max:500, tipe: in:calc,conv,currency)
+    alt User sudah Login (token tersedia)
+        Browser->>API: POST /api/history
+        Note right of Browser: Header: Authorization Bearer token
+        Note right of Browser: Body: {operasi: "2+3=5", tipe: "calc"}
+        API->>API: Validate (operasi: required|max:500, tipe: required|in:calc,conv,currency)
+        alt Validasi berhasil
             API->>DB: INSERT INTO riwayat (user_id, operasi, tipe)
-            DB-->>API: OK
-            API-->>Browser: 201 {message, data: {id, operasi, tipe, waktu}}
+            DB-->>API: OK (new record)
+            API-->>Browser: 201 Created {message, data: {id, operasi, tipe, waktu}}
+        else Validasi gagal
+            API-->>Browser: 422 Unprocessable Entity {errors}
         end
-
-        Browser->>Browser: loadHistory() → render tabel riwayat
-    else Evaluasi Gagal
-        Browser-->>User: Tampilkan "Error"
+    else Guest Mode (tanpa login)
+        Note over Browser,LS: Riwayat hanya disimpan di localStorage
     end
 ```
 
-#### b. Login Web (Session-Based)
+#### b. Web Login (Session)
 
 ```mermaid
 sequenceDiagram
     actor User
     participant Browser
-    participant Laravel as Laravel Backend
-    participant Session as Session Store
+    participant Laravel as AuthController
+    participant Auth as Auth Facade
     participant DB as MySQL
+    participant Session as Session Store
 
     User->>Browser: Buka /login
     Browser->>Laravel: GET /login
-    Laravel->>Laravel: Auth::check() → false
-    Laravel-->>Browser: Render login.blade.php
+    Laravel->>Auth: Auth::check()
+    alt Sudah login
+        Auth-->>Laravel: true
+        Laravel-->>Browser: Redirect ke / (halaman utama)
+    else Belum login
+        Auth-->>Laravel: false
+        Laravel-->>Browser: Render view auth.login
+    end
 
     User->>Browser: Isi username & password
-    User->>Browser: Klik "Masuk"
-    Browser->>Laravel: POST /login {username, password, _token (CSRF)}
-
+    User->>Browser: Klik tombol "Masuk"
+    Browser->>Laravel: POST /login {username, password, _token}
     Laravel->>Laravel: Validate (username: required, password: required)
-    Laravel->>DB: SELECT * FROM users WHERE name = ?
-    DB-->>Laravel: User record
+    Laravel->>Auth: Auth::attempt({name, password})
+    Auth->>DB: SELECT * FROM users WHERE name = ?
+    DB-->>Auth: User record
 
-    alt Kredensial Valid
-        Laravel->>Laravel: Auth::attempt() → Hash::check(password)
+    alt Credentials valid
+        Auth->>Auth: Verify Hash::check(password)
+        Auth-->>Laravel: true
         Laravel->>Session: session()->regenerate()
         Session-->>Laravel: New session ID
-        Laravel->>DB: INSERT INTO sessions (id, user_id, payload)
-        Laravel-->>Browser: 302 Redirect → /
-        Browser->>Laravel: GET /
-        Laravel-->>Browser: Render calculator dengan AUTH.isLoggedIn = true
-    else Kredensial Invalid
-        Laravel-->>Browser: 302 Back + withErrors("Username atau password salah")
+        Laravel-->>Browser: Redirect ke / (302)
+        Browser->>Browser: Load halaman utama + fetch riwayat dari API
+    else Credentials invalid
+        Auth-->>Laravel: false
+        Laravel-->>Browser: Redirect back + error "Username atau password salah"
         Browser-->>User: Tampilkan pesan error
     end
 ```
 
-#### c. Login via Google OAuth
+#### c. Register Akun Baru
 
 ```mermaid
 sequenceDiagram
     actor User
     participant Browser
-    participant Laravel as Laravel Backend
-    participant Google as Google OAuth Server
+    participant Laravel as AuthController
     participant DB as MySQL
-
-    User->>Browser: Klik "Masuk dengan Google"
-    Browser->>Laravel: GET /auth/google/redirect
-    Laravel-->>Browser: 302 Redirect → Google OAuth URL
-
-    Browser->>Google: Authorize (client_id, redirect_uri, scope)
-    Google-->>User: Tampilkan consent screen
-    User->>Google: Pilih akun & izinkan
-    Google-->>Browser: Redirect → /auth/google/callback?code=xxx
-
-    Browser->>Laravel: GET /auth/google/callback?code=xxx
-    Laravel->>Google: Exchange code → access_token
-    Google-->>Laravel: User info (id, name, email)
-
-    Laravel->>DB: SELECT * FROM users WHERE google_id = ? OR email = ?
-
-    alt User Ditemukan
-        Laravel->>DB: UPDATE users SET google_id = ? (jika belum set)
-    else User Baru
-        Laravel->>DB: INSERT INTO users (name, email, google_id, password: random)
-    end
-
-    DB-->>Laravel: User record
-    Laravel->>Laravel: Auth::login(user)
-    Laravel-->>Browser: 302 Redirect → /
-```
-
-#### d. Register Akun Baru
-
-```mermaid
-sequenceDiagram
-    actor User
-    participant Browser
-    participant Laravel as Laravel Backend
-    participant DB as MySQL
+    participant Auth as Auth Facade
 
     User->>Browser: Buka /register
     Browser->>Laravel: GET /register
-    Laravel-->>Browser: Render register.blade.php
+    Laravel->>Auth: Auth::check()
+    Auth-->>Laravel: false
+    Laravel-->>Browser: Render view auth.register
 
     User->>Browser: Isi username, password, konfirmasi password
-    User->>Browser: Klik "Daftar"
+    User->>Browser: Klik tombol "Daftar"
     Browser->>Laravel: POST /register {username, password, password_confirmation, _token}
+    Laravel->>Laravel: Validate (username: required|unique:users, password: min:6|confirmed)
 
-    Laravel->>Laravel: Validate (username: unique:users,name | password: min:6|confirmed)
-
-    alt Validasi Gagal
-        Laravel-->>Browser: 302 Back + withErrors
-        Browser-->>User: Tampilkan pesan error (username sudah dipakai / password terlalu pendek)
-    else Validasi Berhasil
-        Laravel->>DB: INSERT INTO users (name, email: username@econcalc.local, password: Hash::make)
-        DB-->>Laravel: User created
-        Laravel->>Laravel: Auth::login(user)
-        Laravel-->>Browser: 302 Redirect → /
-        Browser-->>User: Masuk ke halaman kalkulator (sudah login)
+    alt Validasi berhasil
+        Laravel->>Laravel: Hash::make(password)
+        Laravel->>DB: INSERT INTO users (name, email, password)
+        Note right of Laravel: email = username@econcalc.local
+        DB-->>Laravel: New User record
+        Laravel->>Auth: Auth::login(user)
+        Auth-->>Laravel: Session created
+        Laravel-->>Browser: Redirect ke / (302)
+        Browser-->>User: Masuk ke halaman utama (sudah login)
+    else Username sudah dipakai
+        Laravel-->>Browser: Redirect back + error "Username sudah digunakan"
+        Browser-->>User: Tampilkan pesan error
     end
 ```
 
-#### e. Konverter Mata Uang - Fetch Kurs & Konversi
+#### d. Google OAuth Login
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Browser
+    participant Laravel as AuthController
+    participant Google as Google OAuth Server
+    participant DB as MySQL
+    participant Auth as Auth Facade
+
+    User->>Browser: Klik "Masuk dengan Google"
+    Browser->>Laravel: GET /auth/google
+    Laravel->>Laravel: Socialite::driver('google')->redirect()
+    Laravel-->>Browser: Redirect ke Google OAuth (302)
+    Browser->>Google: Authorization request (client_id, redirect_uri, scope)
+    Google-->>User: Tampilkan halaman consent Google
+    User->>Google: Pilih akun & izinkan akses
+    Google-->>Browser: Redirect ke /auth/google/callback?code=xxx
+    Browser->>Laravel: GET /auth/google/callback?code=xxx
+    Laravel->>Google: Exchange code for user info
+    Google-->>Laravel: {id, name, email}
+
+    Laravel->>DB: SELECT * FROM users WHERE google_id = ? OR email = ?
+    alt User ditemukan
+        DB-->>Laravel: Existing user
+        opt google_id belum diset
+            Laravel->>DB: UPDATE users SET google_id = ? WHERE id = ?
+        end
+    else User baru
+        Laravel->>Laravel: Hash::make(uniqid()) untuk random password
+        Laravel->>DB: INSERT INTO users (name, email, google_id, password)
+        DB-->>Laravel: New user record
+    end
+    Laravel->>Auth: Auth::login(user)
+    Auth-->>Laravel: Session created
+    Laravel-->>Browser: Redirect ke / (302)
+    Browser-->>User: Masuk ke halaman utama (sudah login)
+```
+
+#### e. Konverter Mata Uang
 
 ```mermaid
 sequenceDiagram
     actor User
     participant Browser as Browser (currency.js)
-    participant LS as LocalStorage
-    participant ExtAPI as Exchange Rate API
+    participant LS as localStorage
+    participant ExAPI as Exchange Rate API
     participant API as REST API (Laravel)
     participant DB as MySQL
 
-    Note over Browser: DOMContentLoaded → initCurrencyDropdowns() + fetchExchangeRates()
-
-    Browser->>LS: Cek cache (econcalc_rates + econcalc_rates_time)
-
-    alt Cache valid (< 24 jam)
+    User->>Browser: Buka tab "Mata Uang"
+    Browser->>LS: Cek cache kurs (exchangeRates)
+    alt Cache valid (belum expired)
         LS-->>Browser: Return cached rates
-        Browser->>Browser: updateRateStatus() → tampilkan waktu update
     else Cache expired / tidak ada
-        Browser->>ExtAPI: GET https://api.exchangerate-api.com/v4/latest/USD
-        ExtAPI-->>Browser: {rates: {IDR: 15800, EUR: 0.92, ...}}
-        Browser->>LS: Cache rates + timestamp
-        Browser->>Browser: updateRateStatus()
+        Browser->>ExAPI: GET https://api.exchangerate-api.com/v4/latest/USD
+        ExAPI-->>Browser: {rates: {IDR: 15800, EUR: 0.92, ...}}
+        Browser->>LS: Simpan rates + timestamp ke cache
     end
+    Browser-->>User: Tampilkan dropdown 160+ mata uang
 
     User->>Browser: Pilih mata uang asal & tujuan
-    User->>Browser: Input jumlah
-    Browser->>Browser: convertCurrency()
-    Browser->>Browser: amountInUSD = amount / rates[from]
-    Browser->>Browser: result = amountInUSD * rates[to]
-    Browser-->>User: Tampilkan hasil + kurs (1 USD = 15,800 IDR)
+    User->>Browser: Input nilai
+    Browser->>Browser: Hitung konversi (nilai × rate)
+    Browser-->>User: Tampilkan hasil konversi
 
-    Note over Browser: Debounce 1 detik sebelum simpan riwayat
-
-    Browser->>Browser: saveHistory("Kurs: 100 USD = 1,580,000 IDR", "currency")
-    Browser->>LS: Simpan ke localStorage
-
-    alt User Login
-        Browser->>API: POST /api/history {operasi, tipe: "currency", X-CSRF-TOKEN}
-        API->>DB: INSERT INTO riwayat
+    Browser->>LS: Simpan ke riwayat localStorage
+    alt User sudah Login
+        Browser->>API: POST /api/history
+        Note right of Browser: Body: {operasi: "100 USD = 1,580,000 IDR", tipe: "currency"}
+        API->>DB: INSERT INTO riwayat (user_id, operasi, tipe)
         DB-->>API: OK
         API-->>Browser: 201 Created
-    end
-```
-
-#### f. Load & Hapus Riwayat
-
-```mermaid
-sequenceDiagram
-    actor User
-    participant Browser as Browser (script.js)
-    participant LS as LocalStorage
-    participant API as REST API (Laravel)
-    participant DB as MySQL
-
-    Note over Browser: loadHistory() dipanggil saat halaman dimuat
-
-    alt User Login (window.AUTH.isLoggedIn)
-        Browser->>API: GET /api/history {Accept: application/json, X-CSRF-TOKEN}
-        API->>DB: SELECT * FROM riwayat WHERE user_id = ? ORDER BY created_at DESC LIMIT 100
-        DB-->>API: History records
-
-        alt Data API tersedia
-            API-->>Browser: 200 {data: [{id, operasi, tipe, waktu}, ...]}
-            Browser->>Browser: renderHistory() → tampilkan di tabel
-        else Data API kosong
-            Browser->>LS: getItem(history_key)
-            LS-->>Browser: Local history[]
-            Browser->>Browser: renderHistoryFromLocal()
-        end
-    else Guest Mode
-        Browser->>LS: getItem("econcalc-history")
-        LS-->>Browser: Local history[]
-        Browser->>Browser: renderHistoryFromLocal()
-    end
-
-    Browser-->>User: Tampilkan tabel riwayat
-
-    opt User klik "Hapus Riwayat"
-        User->>Browser: Klik tombol hapus
-        Browser->>LS: removeItem(history_key)
-        Browser->>Browser: loadHistory() → render ulang (kosong)
-
-        alt User Login
-            Browser->>API: DELETE /api/history {X-CSRF-TOKEN}
-            API->>DB: DELETE FROM riwayat WHERE user_id = ?
-            DB-->>API: OK
-            API-->>Browser: 200 {message: "All history cleared"}
-        end
     end
 ```
 
