@@ -137,48 +137,20 @@ flowchart TD
 ```mermaid
 flowchart TD
     A([Mulai]) --> B[Buka Tab Kalkulator]
-    B --> C[Tampilkan UI Kalkulator Ilmiah]
-    C --> D{Mode Input?}
-
-    D -- Klik Tombol --> E[Input Angka / Operator via Button]
-    D -- Keyboard --> F[Input via Keyboard Fisik]
-    E --> G[Update Display]
-    F --> G
-
-    G --> H{Aksi User?}
-    H -- Tekan '=' / Enter --> I[Evaluasi Ekspresi dengan math.js]
-    H -- Tekan AC --> J[Clear Semua Input]
-    H -- Tekan C --> K[Hapus Karakter Terakhir]
-    H -- Toggle 2nd --> L[Tampilkan Fungsi Invers sin⁻¹ cos⁻¹ tan⁻¹]
-    H -- Toggle DEG/RAD --> M[Ganti Mode Trigonometri]
-    H -- Fungsi Memori --> N{Tombol Memori?}
-
-    N -- M+ --> N1[Tambah Nilai ke Memory]
-    N -- M- --> N2[Kurangi Nilai dari Memory]
-    N -- MR --> N3[Recall Nilai Memory ke Display]
-    N -- MC --> N4[Clear Memory]
-    N1 --> G
-    N2 --> G
-    N3 --> G
-    N4 --> G
-
-    J --> G
-    K --> G
-    L --> G
-    M --> G
-
-    I --> O{Ekspresi Valid?}
-    O -- Ya --> P[Tampilkan Hasil di Display]
-    O -- Tidak --> Q[Tampilkan Error]
-    Q --> G
-
-    P --> R[Simpan ke localStorage]
-    R --> S{User Login?}
-    S -- Ya --> T[POST /api/history operasi + tipe=calc]
-    S -- Tidak --> U[Riwayat di localStorage saja]
-    T --> V[Update Tabel Riwayat di UI]
-    U --> V
-    V --> G
+    B --> C[Input Angka / Operator via Tombol atau Keyboard]
+    C --> D{Aksi User?}
+    D -- Tekan '=' --> E[Evaluasi Ekspresi]
+    D -- AC / C --> F[Clear Input] --> C
+    D -- 2nd / DEG-RAD --> G[Toggle Mode] --> C
+    D -- M+ / M- / MR / MC --> H[Operasi Memori] --> C
+    E --> I{Valid?}
+    I -- Ya --> J[Tampilkan Hasil]
+    I -- Tidak --> K[Tampilkan Error] --> C
+    J --> L{User Login?}
+    L -- Ya --> M[Simpan ke localStorage + POST /api/history]
+    L -- Tidak --> N[Simpan ke localStorage saja]
+    M --> O[Update Riwayat di UI] --> C
+    N --> O
 ```
 
 #### b. Konverter Satuan
@@ -186,28 +158,19 @@ flowchart TD
 ```mermaid
 flowchart TD
     A([Mulai]) --> B[Buka Tab Konverter]
-    B --> C[Tampilkan Dropdown Kategori]
-    C --> D[User Pilih Kategori: Panjang / Berat / Suhu / Kecepatan / Luas / Volume]
-    D --> E[Populate Dropdown Satuan Asal dan Tujuan Otomatis]
-    E --> F[User Input Nilai Angka]
-    F --> G[User Pilih Satuan Asal]
-    G --> H[User Pilih Satuan Tujuan]
-    H --> I[Hitung Konversi Berdasarkan Faktor Konversi]
-    I --> J[Tampilkan Hasil Konversi]
-
-    J --> K{Aksi User?}
-    K -- Swap ⇄ --> L[Tukar Satuan Asal dan Tujuan]
-    L --> I
-    K -- Ganti Kategori --> D
-    K -- Input Nilai Baru --> F
-    K -- Selesai --> M[Simpan ke localStorage]
-
-    M --> N{User Login?}
-    N -- Ya --> O[POST /api/history operasi + tipe=conv]
-    N -- Tidak --> P[Riwayat di localStorage saja]
-    O --> Q[Update Tabel Riwayat di UI]
-    P --> Q
-    Q --> K
+    B --> C[Pilih Kategori: Panjang / Berat / Suhu / Kecepatan / Luas / Volume]
+    C --> D[Populate Dropdown Satuan Otomatis]
+    D --> E[Input Nilai + Pilih Satuan Asal dan Tujuan]
+    E --> F[Hitung Konversi]
+    F --> G[Tampilkan Hasil]
+    G --> H{Aksi User?}
+    H -- Swap ⇄ --> I[Tukar Satuan] --> F
+    H -- Ganti Kategori --> C
+    H -- Selesai --> J{User Login?}
+    J -- Ya --> K[Simpan ke localStorage + POST /api/history tipe=conv]
+    J -- Tidak --> L[Simpan ke localStorage saja]
+    K --> M[Update Riwayat di UI]
+    L --> M
 ```
 
 #### c. Konverter Mata Uang
@@ -215,106 +178,75 @@ flowchart TD
 ```mermaid
 flowchart TD
     A([Mulai]) --> B[Buka Tab Mata Uang]
-    B --> C{Cek Cache Kurs di localStorage}
-    C -- Cache Valid --> D[Gunakan Kurs dari Cache]
-    C -- Cache Expired / Kosong --> E[Fetch dari Exchange Rate API]
-    E --> F{Fetch Berhasil?}
-    F -- Ya --> G[Simpan Kurs + Timestamp ke localStorage]
-    F -- Tidak --> H[Tampilkan Error: Gagal memuat kurs]
-    G --> D
-
-    D --> I[Tampilkan 160+ Mata Uang di Dropdown]
-    I --> J[User Pilih Mata Uang Asal: contoh USD]
-    J --> K[User Pilih Mata Uang Tujuan: contoh IDR]
-    K --> L[User Input Nilai]
-    L --> M[Hitung: Nilai × Exchange Rate]
-    M --> N[Tampilkan Hasil Konversi + Kurs Terakhir Update]
-
-    N --> O{Aksi User?}
-    O -- Swap ⇄ --> P[Tukar Mata Uang Asal dan Tujuan]
-    P --> M
-    O -- Refresh Kurs --> E
-    O -- Input Baru --> L
-    O -- Selesai --> Q[Simpan ke localStorage]
-
-    Q --> R{User Login?}
-    R -- Ya --> S[POST /api/history operasi + tipe=currency]
-    R -- Tidak --> T[Riwayat di localStorage saja]
-    S --> U[Update Tabel Riwayat di UI]
-    T --> U
-    U --> O
+    B --> C{Cache Kurs Valid?}
+    C -- Ya --> D[Gunakan Kurs dari Cache]
+    C -- Tidak --> E[Fetch dari Exchange Rate API]
+    E --> F{Berhasil?}
+    F -- Ya --> G[Simpan Kurs ke localStorage] --> D
+    F -- Tidak --> H[Tampilkan Error]
+    D --> I[Tampilkan Dropdown 160+ Mata Uang]
+    I --> J[Pilih Mata Uang Asal dan Tujuan + Input Nilai]
+    J --> K[Hitung Konversi: Nilai × Rate]
+    K --> L[Tampilkan Hasil + Info Kurs Terakhir]
+    L --> M{Aksi User?}
+    M -- Swap ⇄ --> N[Tukar Mata Uang] --> K
+    M -- Refresh Kurs --> E
+    M -- Selesai --> O{User Login?}
+    O -- Ya --> P[Simpan ke localStorage + POST /api/history tipe=currency]
+    O -- Tidak --> Q[Simpan ke localStorage saja]
+    P --> R[Update Riwayat di UI]
+    Q --> R
 ```
 
 #### d. Autentikasi - Login
 
 ```mermaid
 flowchart TD
-    A([Mulai]) --> B[User Buka /login]
-    B --> C{Auth::check - Sudah login?}
-    C -- Ya --> D[Redirect ke Halaman Utama /]
-    C -- Tidak --> E[Render Halaman Login]
-
-    E --> F{Metode Login?}
-    F -- Username + Password --> G[User Isi Form Login]
-    F -- Google OAuth --> H[Klik Tombol Masuk dengan Google]
-    F -- Belum punya akun --> I[Klik Link Daftar → /register]
-
-    G --> J[POST /login dengan CSRF Token]
-    J --> K[Validasi: username required, password required]
-    K --> L{Auth::attempt - Credentials Valid?}
-    L -- Ya --> M[Session Regenerate]
-    M --> N[Redirect ke Halaman Utama /]
-    L -- Tidak --> O[Return Error: Username atau password salah]
-    O --> E
-
-    H --> P[Redirect ke Google OAuth Server]
-    P --> Q[User Pilih Akun Google]
-    Q --> R[Google Callback dengan Authorization Code]
-    R --> S{User Ditemukan di DB?}
-    S -- Ya --> T[Update google_id jika belum ada]
-    S -- Tidak --> U[Buat User Baru dengan Data Google]
-    T --> V[Auth::login → Buat Session]
-    U --> V
-    V --> D
+    A([Mulai]) --> B{Sudah Login?}
+    B -- Ya --> C[Redirect ke Halaman Utama]
+    B -- Tidak --> D[Tampilkan Halaman Login]
+    D --> E{Metode Login?}
+    E -- Username + Password --> F[Isi Form + POST /login]
+    E -- Google OAuth --> G[Redirect ke Google]
+    E -- Register --> H[Redirect ke /register]
+    F --> I{Credentials Valid?}
+    I -- Ya --> J[Buat Session + Redirect ke /] --> C
+    I -- Tidak --> K[Tampilkan Error] --> D
+    G --> L[User Pilih Akun Google]
+    L --> M[Google Callback ke Laravel]
+    M --> N{User Ada di DB?}
+    N -- Ya --> O[Update google_id jika perlu]
+    N -- Tidak --> P[Buat User Baru]
+    O --> J
+    P --> J
 ```
 
 #### e. Autentikasi - Register
 
 ```mermaid
 flowchart TD
-    A([Mulai]) --> B[User Buka /register]
-    B --> C{Auth::check - Sudah login?}
-    C -- Ya --> D[Redirect ke Halaman Utama /]
-    C -- Tidak --> E[Render Halaman Register]
-
-    E --> F[User Isi: Username, Password, Konfirmasi Password]
-    F --> G[POST /register dengan CSRF Token]
-    G --> H[Validasi Input]
-    H --> I{Username Valid?}
-    I -- Tidak: sudah dipakai --> J[Return Error: Username sudah digunakan]
-    J --> E
-    I -- Ya --> K{Password Valid?}
-    K -- Tidak: kurang dari 6 karakter --> L[Return Error: Password minimal 6 karakter]
-    K -- Tidak: tidak cocok --> M[Return Error: Konfirmasi password tidak cocok]
-    L --> E
-    M --> E
-    K -- Ya --> N[Hash::make password]
-    N --> O[INSERT INTO users - name, email, password]
-    O --> P[Auth::login - Buat Session Otomatis]
-    P --> D
+    A([Mulai]) --> B{Sudah Login?}
+    B -- Ya --> C[Redirect ke Halaman Utama]
+    B -- Tidak --> D[Tampilkan Halaman Register]
+    D --> E[Isi Username + Password + Konfirmasi]
+    E --> F[POST /register]
+    F --> G{Validasi OK?}
+    G -- Username sudah dipakai --> H[Error: Username sudah digunakan] --> D
+    G -- Password tidak valid --> I[Error: Min 6 karakter / tidak cocok] --> D
+    G -- Valid --> J[Hash Password + Simpan ke DB]
+    J --> K[Auto Login + Redirect ke /] --> C
 ```
 
 #### f. Logout
 
 ```mermaid
 flowchart TD
-    A([User Klik Logout]) --> B[POST /logout dengan CSRF Token]
-    B --> C[Auth::logout - Hapus Autentikasi]
-    C --> D[Session Invalidate]
-    D --> E[Regenerate CSRF Token]
-    E --> F[Redirect ke Halaman Utama /]
-    F --> G[User Kembali ke Mode Guest]
-    G --> H[Riwayat Beralih ke localStorage Only]
+    A([User Klik Logout]) --> B[POST /logout]
+    B --> C[Hapus Session + Auth]
+    C --> D[Regenerate CSRF Token]
+    D --> E[Redirect ke Halaman Utama]
+    E --> F[User Kembali ke Mode Guest]
+    F --> G[Riwayat Beralih ke localStorage Only]
 ```
 
 ---
