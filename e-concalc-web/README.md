@@ -221,7 +221,51 @@ sequenceDiagram
     end
 ```
 
-#### b. Web Login (Session)
+#### b. Konverter Satuan
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Browser as Browser (script.js)
+    participant LS as localStorage
+    participant API as REST API (Laravel)
+    participant DB as MySQL
+
+    User->>Browser: Buka tab "Konverter"
+    Browser->>Browser: Load daftar kategori (Panjang, Berat, Suhu, Kecepatan, Luas, Volume)
+    Browser-->>User: Tampilkan dropdown kategori
+
+    User->>Browser: Pilih kategori (contoh: Panjang/Length)
+    Browser->>Browser: Populate dropdown satuan sesuai kategori
+    Browser-->>User: Tampilkan dropdown satuan asal & tujuan (m, km, cm, dll.)
+
+    User->>Browser: Input nilai angka
+    User->>Browser: Pilih satuan asal & tujuan
+    Browser->>Browser: Hitung konversi berdasarkan faktor konversi
+    Browser-->>User: Tampilkan hasil konversi
+
+    opt User klik tombol Swap ⇄
+        Browser->>Browser: Tukar satuan asal & tujuan
+        Browser->>Browser: Hitung ulang konversi
+        Browser-->>User: Tampilkan hasil baru
+    end
+
+    Browser->>LS: Simpan ke riwayat localStorage
+    Browser-->>User: Update tabel riwayat di UI
+
+    alt User sudah Login
+        Browser->>API: POST /api/history
+        Note right of Browser: Body: {operasi: "100 m = 0.1 km", tipe: "conv"}
+        API->>API: Validate (operasi: required|max:500, tipe: in:calc,conv,currency)
+        API->>DB: INSERT INTO riwayat (user_id, operasi, tipe)
+        DB-->>API: OK
+        API-->>Browser: 201 Created
+    else Guest Mode
+        Note over Browser,LS: Riwayat hanya di localStorage
+    end
+```
+
+#### c. Web Login (Session)
 
 ```mermaid
 sequenceDiagram
@@ -265,7 +309,7 @@ sequenceDiagram
     end
 ```
 
-#### c. Register Akun Baru
+#### d. Register Akun Baru
 
 ```mermaid
 sequenceDiagram
@@ -301,7 +345,7 @@ sequenceDiagram
     end
 ```
 
-#### d. Google OAuth Login
+#### e. Google OAuth Login
 
 ```mermaid
 sequenceDiagram
@@ -341,7 +385,7 @@ sequenceDiagram
     Browser-->>User: Masuk ke halaman utama (sudah login)
 ```
 
-#### e. Konverter Mata Uang
+#### f. Konverter Mata Uang
 
 ```mermaid
 sequenceDiagram
