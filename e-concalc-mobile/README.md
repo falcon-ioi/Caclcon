@@ -31,6 +31,28 @@ Aplikasi native Android untuk platform E-Concalc, dibangun dengan **Kotlin** dan
 
 ---
 
+## 🎨 Mock-Up / Screenshots
+
+### 1. Halaman Login
+![Login Page](docs/screenshots/02_login.png)
+
+### 2. Halaman Register
+![Register Page](docs/screenshots/03_register.png)
+
+### 3. Kalkulator Ilmiah
+![Calculator Page](docs/screenshots/04_calculator.png)
+
+### 4. Konverter Satuan
+![Converter Page](docs/screenshots/05_converter.png)
+
+### 5. Konverter Mata Uang
+![Currency Page](docs/screenshots/06_currency.png)
+
+### 6. Riwayat Perhitungan
+![History Page](docs/screenshots/01_history.png)
+
+---
+
 ## 🔗 REST API Endpoints
 
 Semua API dilindungi `auth:sanctum` (kecuali login/register):
