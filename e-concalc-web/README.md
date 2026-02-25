@@ -90,40 +90,49 @@ E-Concalc (Electronic Converter & Calculator) adalah platform kalkulator ilmiah 
 ### Use Case Diagram
 
 ```mermaid
-flowchart TD
+flowchart LR
     Guest(("👤 Guest"))
-    User(("👤 Logged-in User"))
+    User(("👤 User"))
 
-    Guest --> A(["🖩 Kalkulator Ilmiah"])
-    Guest --> B(["📐 Konverter Satuan"])
-    Guest --> C(["💱 Konverter Mata Uang"])
-    Guest --> D(["📜 Riwayat - localStorage"])
-    Guest --> Auth(["🔑 Login / Register"])
+    subgraph Kalkulator["🖩 Kalkulator Ilmiah"]
+        A1(["Perhitungan Dasar & Ilmiah"])
+        A2(["Toggle DEG / RAD"])
+        A3(["Fungsi Memori"])
+        A4(["Fungsi 2nd"])
+        A5(["Input Keyboard"])
+    end
 
-    User --> A
-    User --> B
-    User --> C
-    User --> E(["📜 Riwayat - API Sync"])
+    subgraph Konverter["📐 Konverter Satuan"]
+        B1(["Pilih Kategori"])
+        B2(["Konversi Nilai"])
+        B3(["Swap Satuan"])
+    end
+
+    subgraph MataUang["💱 Konverter Mata Uang"]
+        C1(["Konversi 160+ Mata Uang"])
+        C2(["Swap Mata Uang"])
+        C3(["Refresh Kurs"])
+    end
+
+    subgraph Auth["🔑 Autentikasi"]
+        Auth1(["Login Username/Password"])
+        Auth2(["Login Google OAuth"])
+        Auth3(["Register Akun Baru"])
+    end
+
+    Guest --> Kalkulator
+    Guest --> Konverter
+    Guest --> MataUang
+    Guest --> D(["📜 Riwayat localStorage"])
+    Guest --> Auth
+
+    User --> Kalkulator
+    User --> Konverter
+    User --> MataUang
+    User --> E(["📜 Riwayat API Sync"])
     User --> F(["🚪 Logout"])
 
-    A --> A1(["Perhitungan Dasar & Ilmiah"])
-    A --> A2(["Toggle DEG / RAD"])
-    A --> A3(["Fungsi Memori M+ M- MR MC"])
-    A --> A4(["Fungsi 2nd"])
-    A --> A5(["Input Keyboard"])
-
-    B --> B1(["Pilih Kategori"])
-    B --> B2(["Konversi Nilai"])
-    B --> B3(["Swap Satuan"])
-
-    C --> C1(["Konversi 160+ Mata Uang"])
-    C --> C2(["Swap Mata Uang"])
-    C --> C3(["Refresh Kurs"])
     C3 -.-> API[("🌐 Exchange Rate API")]
-
-    Auth --> Auth1(["Login Username/Password"])
-    Auth --> Auth2(["Login Google OAuth"])
-    Auth --> Auth3(["Register Akun Baru"])
 ```
 
 ### Activity Diagram - Calculator Flow
