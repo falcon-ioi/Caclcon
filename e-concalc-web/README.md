@@ -357,6 +357,12 @@ erDiagram
         timestamp failed_at
     }
 
+    migrations {
+        int id PK
+        varchar migration
+        int batch
+    }
+
     users ||--o{ riwayat : "has many"
     users ||--o{ personal_access_tokens : "has many"
     users ||--o{ sessions : "has many"
