@@ -355,19 +355,6 @@ classDiagram
 
 ---
 
-## 🎨 Mock-Up / Screenshots
-
-### 1. Halaman Kalkulator Ilmiah
-![Kalkulator Ilmiah](docs/screenshots/01_calculator.png)
-
-### 2. Halaman Konverter Satuan
-![Konverter Satuan](docs/screenshots/02_converter.png)
-
-### 3. Halaman Konverter Mata Uang
-![Konverter Mata Uang](docs/screenshots/03_currency.png)
-
----
-
 ## 🔄 SDLC (Software Development Life Cycle)
 
 **Metodologi:** Waterfall dengan iterasi
