@@ -341,6 +341,22 @@ erDiagram
         int last_activity
     }
 
+    password_reset_tokens {
+        varchar email PK
+        varchar token
+        timestamp created_at
+    }
+
+    failed_jobs {
+        bigint id PK
+        varchar uuid UK
+        text connection
+        text queue
+        longtext payload
+        longtext exception
+        timestamp failed_at
+    }
+
     users ||--o{ riwayat : "has many"
     users ||--o{ personal_access_tokens : "has many"
     users ||--o{ sessions : "has many"
@@ -502,6 +518,7 @@ riwayat                  → Riwayat perhitungan terhubung ke user via user_id
 personal_access_tokens   → Token Sanctum untuk autentikasi mobile app
 sessions                 → Session management untuk web auth
 password_reset_tokens    → Token untuk reset password
+failed_jobs              → Log job yang gagal dieksekusi
 migrations               → Tracking migrasi Laravel
 ```
 
