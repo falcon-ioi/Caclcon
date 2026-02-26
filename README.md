@@ -2,120 +2,114 @@
   <img src="docs/images/ecalc-banner.png" alt="E-Concalc Banner" width="600">
 </p>
 
-# 🧮 E-Concalc Monorepo by Falcon IOI
+# E-Concalc Monorepo
 
-<p align="center">
-  <img src="docs/images/logo.png" alt="E-Concalc Logo" width="100">
-</p>
-
-Welcome to **E-Concalc** (Electronic Converter & Calculator), a full-featured scientific calculator and converter platform with **cross-platform history synchronization**. This repository is a unified monorepo containing both the **Android Mobile App** and the **Laravel Website**.
+E-Concalc (Electronic Converter & Calculator) adalah platform kalkulator ilmiah dan konverter lintas platform yang mendukung **sinkronisasi riwayat perhitungan** antar perangkat. Dirancang menggunakan arsitektur *Client-Server*, sistem ini memisahkan backend berbasis Laravel dengan klien mobile native Android menggunakan Kotlin & Jetpack Compose.
 
 ---
 
-## 🏗️ Project Structure
+## 🏗️ Arsitektur & Repositori
 
-- **[e-concalc-mobile/](./e-concalc-mobile)**: Native Android application built with Kotlin and Jetpack Compose. Features authentication, API sync, and modern dark-themed UI.
-- **[e-concalc-web/](./e-concalc-web)**: Full-featured website built with Laravel 10, featuring responsive dark-themed UI with glassmorphism effects, REST API, and PWA support.
+Sistem ini dikelola dalam format *monorepo* yang terdiri dari dua komponen teknis utama:
 
----
+- 🌐 **[E-Concalc Web (Backend & Frontend)](./e-concalc-web/README.md)**
+  Berperan sebagai *Core System* dan *API Provider*. Mengelola logika kalkulator, konverter, basis data riwayat, autentikasi, dan menyediakan REST API untuk sinkronisasi lintas platform.
 
-## ✨ Features
-
-### 📱 Android App (Mobile)
-- **Scientific Calculator**: Full scientific operations including trigonometry, logarithms, and memory functions (M+, M-, MR, MC).
-- **Unit Converter**: Convert between 15 categories (length, weight, temperature, speed, area, volume, etc.).
-- **Currency Converter**: Real-time exchange rates with 52 currencies and offline caching.
-- **Authentication**: Login/Register with username or Google Sign-In (Credential Manager API).
-- **History Sync**: Per-user history synced to server via REST API (guest mode uses local storage only).
-- **Dark Theme UI**: Sleek dark Slate/Sky interface with Jetpack Compose and Material 3.
-- **Logout & Profile**: TopAppBar with profile dropdown and logout confirmation dialog.
-
-### 🌐 Website (Web Platform)
-- **Scientific Calculator**: Advanced calculator with keyboard support, 2nd function toggle, and `DEG/RAD` mode.
-- **Unit Converter**: Comprehensive unit conversion across multiple categories.
-- **Currency Converter**: Live exchange rates powered by external API.
-- **Authentication**: Login/Register with username or Google OAuth (Laravel Socialite).
-- **History Sync**: Per-user history saved to database via REST API (guest uses localStorage).
-- **PWA Support**: Installable as a Progressive Web App with offline capabilities.
-- **Responsive Design**: Glassmorphism dark-themed UI that works on all devices.
-
-### 🔗 Cross-Platform Sync
-Both platforms share the same backend REST API for history synchronization:
-- `POST /api/history` — Save calculation/conversion history
-- `GET /api/history` — Retrieve history (with optional `?tipe=calc|conv|currency` filter)
-- `DELETE /api/history` — Clear all history
-
-Login with the **same account** on both website and mobile app to see shared history.
+- 📱 **[E-Concalc Mobile (Android Client)](./e-concalc-mobile/README.md)**
+  Aplikasi klien *native* Android yang mengonsumsi REST API untuk menyediakan kalkulator ilmiah, konverter satuan & mata uang, serta sinkronisasi riwayat secara efisien.
 
 ---
 
-## 🗄️ Database (MySQL)
+## 👥 User Story
 
-| Table | Description |
-|-------|-------------|
-| `users` | User accounts (name, email, google_id, password) |
-| `riwayat` | Calculation history linked to users via `user_id` FK |
-| `personal_access_tokens` | Sanctum API tokens for mobile authentication |
-| `sessions` | Web session management |
-
-> **Guest mode**: Does not touch the database — uses localStorage (web) / SharedPreferences (mobile) only.
+| Aktor | Skenario | Kebutuhan | Tujuan |
+| :--- | :--- | :--- | :--- |
+| **Guest** | Perhitungan Ilmiah | Menggunakan kalkulator untuk operasi dasar & ilmiah tanpa login. | Kemudahan akses tanpa registrasi. |
+| **Guest** | Konversi Satuan | Mengonversi satuan dari 15 kategori (panjang, suhu, berat, dll). | Mendapatkan hasil konversi cepat dan akurat. |
+| **Guest** | Konversi Mata Uang | Mengonversi nilai mata uang real-time dari 52 mata uang dunia. | Mengetahui kurs aktual secara instan. |
+| **User** | Autentikasi | Login/register menggunakan email atau Google OAuth. | Mengakses fitur sinkronisasi riwayat. |
+| **User** | Sinkronisasi Riwayat | Menyimpan riwayat perhitungan ke server dan mengakses lintas perangkat. | Konsistensi data perhitungan antar platform. |
+| **User** | PWA Install | Menginstal website sebagai Progressive Web App. | Mengakses kalkulator secara offline dan cepat. |
 
 ---
 
-## 🚀 Quick Start
+## 📑 Feature List (SRS) - Technical Detail
 
-### 1. Setup Website
-```bash
-cd e-concalc-web
-composer install
-npm install
-cp .env.example .env
-php artisan key:generate
-```
+| Modul | Fitur | Deskripsi Teknis |
+| :--- | :--- | :--- |
+| **Calculator** | Scientific Calculator | Operasi matematika dasar & ilmiah (trigonometri, logaritma, faktorial) dengan mode DEG/RAD dan fungsi memori (M+, M-, MR, MC). |
+| **Converter** | Unit Converter | Konversi antar satuan dalam 15 kategori termasuk panjang, berat, suhu, kecepatan, luas, volume, tekanan, dan lainnya. |
+| **Currency** | Currency Converter | Konversi mata uang real-time menggunakan API eksternal dengan dukungan 52 mata uang dan offline caching. |
+| **Security** | Auth System | Implementasi Laravel Sanctum untuk *bearer token management* dan Google Socialite/Credential Manager API. |
+| **Security** | Input Validation | Validasi input pada sisi klien dan server, proteksi terhadap SQL Injection, XSS, dan CSRF. |
+| **Sync** | REST API Gateway | Antarmuka komunikasi *stateless* (`POST/GET/DELETE /api/history`) untuk sinkronisasi riwayat JSON lintas platform. |
+| **Mobile Core** | Jetpack Compose UI | Arsitektur Android modern dengan Material 3, navigasi deklaratif, dan dark theme responsif. |
+| **Web Core** | PWA Support | Service Worker dan Web App Manifest untuk instalasi dan offline caching pada browser. |
 
-Edit `.env` and configure MySQL:
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=ecalc
-DB_USERNAME=root
-DB_PASSWORD=
-```
+---
 
-Create database and run migrations:
-```bash
-# Create 'ecalc' database in phpMyAdmin first, then:
-php artisan migrate:fresh
-php artisan serve --port=8080
-```
+## 📊 Dokumentasi Perancangan (UML)
 
-### 2. Setup Android
-- Open `e-concalc-mobile/` in **Android Studio**.
-- Sync Gradle.
-- Build & Run on emulator or device.
-- **Note**: Uses `http://10.0.2.2:8080/` for API (emulator only). For physical devices, update `BASE_URL` in `ApiClient.kt` to your local IP.
+Sistem dirancang menggunakan metodologi orientasi objek dengan dokumentasi UML sebagai berikut:
+
+| Diagram | Visualisasi | Deskripsi Teknis |
+| :--- | :---: | :--- |
+| **Use Case** | <img src="./docs/diagrams/usecase_diagram.png" width="300"> | Mendefinisikan interaksi antara Guest dan Authenticated User dengan sistem kalkulator, konverter, dan sinkronisasi. |
+
+> **Catatan:** Diagram tambahan (Activity Diagram, Sequence Diagram, Class Diagram, dan ERD) dapat dilihat pada lampiran laporan proyek akhir.
+
+---
+
+## 🔄 System Development Life Cycle (SDLC)
+
+Pengembangan proyek ini mengikuti metodologi **Waterfall** yang terstruktur secara sekuensial:
+
+| Fase | Aktivitas Utama | Output |
+| :--- | :--- | :--- |
+| **Requirements** | Analisis kebutuhan fungsional dan non-fungsional aplikasi kalkulator & konverter lintas platform. | Dokumen Spesifikasi Kebutuhan (9 KF, 5 KNF). |
+| **Design** | Perancangan arsitektur Client-Server, UI/UX dark theme, skema database MySQL, dan diagram UML. | Diagram UML & Desain Antarmuka. |
+| **Implementation** | Pengkodean backend (Laravel 10 + PHP 8.1), frontend web (Blade + JS), dan mobile (Kotlin 2.0 + Jetpack Compose). | *Source Code* Monorepo. |
+| **Testing** | Unit testing, pengujian fungsional (10 test case), pengujian integrasi API, dan pengujian keamanan (SQL Injection, XSS). | Laporan Hasil Pengujian. |
+| **Deployment** | Integrasi sistem melalui REST API, konfigurasi PWA, dan persiapan lingkungan produksi. | Sistem Siap Operasional. |
+
+---
+
+## 🗄️ Database Schema (MySQL)
+
+| Tabel | Kolom | Deskripsi |
+| :--- | :--- | :--- |
+| `users` | id, name, email, password, google_id, email_verified_at, remember_token | Akun pengguna dengan dukungan Google OAuth. |
+| `riwayat` | id, user_id (FK), operasi, tipe (calc/conv/currency), created_at | Riwayat perhitungan yang terhubung ke pengguna. |
+| `personal_access_tokens` | tokenable_type, tokenable_id, name, token, abilities | Token API Laravel Sanctum untuk autentikasi mobile. |
+| `sessions` | id, user_id, ip_address, user_agent, payload, last_activity | Manajemen sesi web. |
+
+> **Mode Tamu:** Tidak menyentuh database — menggunakan localStorage (web) / SharedPreferences (mobile).
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Component | Technology |
-|-----------|------------|
-| **Backend** | Laravel 10, PHP 8.1+ |
-| **Frontend** | Blade + Vanilla JS + CSS |
-| **Mobile** | Kotlin 2.0, Jetpack Compose, Material 3 |
-| **Database** | MySQL 8.0 |
-| **Auth** | Laravel Sanctum (API tokens) + Google OAuth |
-| **API** | REST API with JSON responses |
-| **HTTP Client** | Retrofit 2 + OkHttp (mobile) |
-| **PWA** | Service Worker + Web App Manifest |
+| Komponen | Teknologi |
+| :--- | :--- |
+| Sistem Operasi | Windows 11 |
+| IDE (Web) | Visual Studio Code |
+| IDE (Mobile) | Android Studio |
+| Backend Framework | Laravel 10 (PHP 8.1+) |
+| Frontend Web | Blade Template + Vanilla JS + CSS |
+| Mobile | Kotlin 2.0, Jetpack Compose, Material Design 3 |
+| Database | MySQL 8.0 |
+| Autentikasi | Laravel Sanctum + Google OAuth (Socialite & Credential Manager API) |
+| HTTP Client (Mobile) | Retrofit 2 + OkHttp |
+| REST API | JSON Stateless API |
+| PWA | Service Worker + Web App Manifest |
 
 ---
 
-## 👨‍💻 Author
-Developed with ❤️ by **Falcon IOI**
+## 👨‍💻 Profil Pengembang
 
----
-
-© 2026 E-Concalc by Falcon IOI. All rights reserved.
+- **Nama:** Raffelino Hizkia Marbun
+- **NIM:** 2423102065
+- **Program Studi:** Rekayasa Keamanan Siber
+- **Institusi:** Politeknik Siber dan Sandi Negara
+- **Dosen Pembimbing:** Rahmat Purwoko, S.T., M.T.
+- **Tahun Akademik:** 2025/2026
