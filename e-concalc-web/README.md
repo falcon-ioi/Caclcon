@@ -632,22 +632,17 @@ erDiagram
 
 ---
 
-## 🎨 Mock-Up / Screenshots
+## 📸 Antarmuka Web (Gallery)
 
-### 1. Halaman Login
-![Login Page](docs/screenshots/01_login.png)
+### 🔐 Auth
+| Login | Register |
+| :---: | :---: |
+| <img src="docs/screenshots/01_login.png" width="350"> | <img src="docs/screenshots/02_register.png" width="350"> |
 
-### 2. Halaman Register
-![Register Page](docs/screenshots/02_register.png)
-
-### 3. Kalkulator Ilmiah
-![Calculator Page](docs/screenshots/03_calculator.png)
-
-### 4. Konverter Satuan
-![Converter Page](docs/screenshots/04_converter.png)
-
-### 5. Konverter Mata Uang
-![Currency Page](docs/screenshots/05_currency.png)
+### 🧮 Fitur Utama
+| Kalkulator Ilmiah | Konverter Satuan | Konverter Mata Uang |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/03_calculator.png" width="250"> | <img src="docs/screenshots/04_converter.png" width="250"> | <img src="docs/screenshots/05_currency.png" width="250"> |
 
 ---
 

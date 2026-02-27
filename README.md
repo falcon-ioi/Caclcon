@@ -55,8 +55,9 @@ Sistem dirancang menggunakan metodologi orientasi objek dengan dokumentasi UML s
 | Diagram | Visualisasi | Deskripsi Teknis |
 | :--- | :---: | :--- |
 | **Use Case** | <img src="./docs/diagrams/usecase_diagram.png" width="300"> | Mendefinisikan interaksi antara Guest dan Authenticated User dengan sistem kalkulator, konverter, dan sinkronisasi. |
-
-> **Catatan:** Diagram tambahan (Activity Diagram, Sequence Diagram, Class Diagram, dan ERD) dapat dilihat pada lampiran laporan proyek akhir.
+| **Activity** | <img src="./docs/diagrams/activity_diagram.png" width="300"> | Menggambarkan alur kerja sistem mulai dari input kalkulator hingga sinkronisasi riwayat dan alur autentikasi. |
+| **Sequence** | <img src="./docs/diagrams/sequence_diagram.png" width="300"> | Menjelaskan urutan pertukaran pesan antar komponen untuk fungsi kalkulator dengan API sync. |
+| **ERD** | <img src="./docs/diagrams/erd_diagram.png" width="300"> | Struktur basis data logis yang menggambarkan relasi antar entitas users, riwayat, tokens, dan sessions. |
 
 ---
 

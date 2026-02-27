@@ -31,25 +31,17 @@ Aplikasi native Android untuk platform E-Concalc, dibangun dengan **Kotlin** dan
 
 ---
 
-## 🎨 Mock-Up / Screenshots
+## 📸 Antarmuka Aplikasi Mobile (Gallery)
 
-### 1. Halaman Login
-![Login Page](docs/screenshots/02_login.png)
+### 🔐 Auth & Navigasi
+| Login | Register | Riwayat |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/02_login.png" width="220"> | <img src="docs/screenshots/03_register.png" width="220"> | <img src="docs/screenshots/01_history.png" width="220"> |
 
-### 2. Halaman Register
-![Register Page](docs/screenshots/03_register.png)
-
-### 3. Kalkulator Ilmiah
-![Calculator Page](docs/screenshots/04_calculator.png)
-
-### 4. Konverter Satuan
-![Converter Page](docs/screenshots/05_converter.png)
-
-### 5. Konverter Mata Uang
-![Currency Page](docs/screenshots/06_currency.png)
-
-### 6. Riwayat Perhitungan
-![History Page](docs/screenshots/01_history.png)
+### 🧮 Fitur Utama
+| Kalkulator Ilmiah | Konverter Satuan | Konverter Mata Uang |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/04_calculator.png" width="220"> | <img src="docs/screenshots/05_converter.png" width="220"> | <img src="docs/screenshots/06_currency.png" width="220"> |
 
 ---
 
