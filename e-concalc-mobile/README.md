@@ -1,33 +1,92 @@
-<p align="center">
-  <img src="../docs/images/logo.png" alt="E-Concalc Logo" width="100">
+<p align="left">
+  <img src="https://img.shields.io/badge/Kotlin-2.0-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin" />
+  <img src="https://img.shields.io/badge/Android_Studio-3DDC84?style=for-the-badge&logo=android-studio&logoColor=white" alt="Android Studio" />
 </p>
 
-# 📱 E-Concalc Mobile - Android Client
+# E-Concalc Mobile (Android Client)
 
-Aplikasi native Android untuk platform E-Concalc, dibangun dengan **Kotlin** dan **Jetpack Compose**. Mendukung **autentikasi** (Login/Register + Google Sign-In), **sinkronisasi riwayat** via REST API, dan mode **guest** offline.
+Aplikasi klien *native* Android ini dirancang untuk menyediakan kalkulator ilmiah, konverter satuan & mata uang dengan efisiensi *resource* tinggi. Aplikasi ini mengimplementasikan sinkronisasi riwayat lintas platform dan manajemen autentikasi via Laravel Sanctum.
 
-![Kotlin](https://img.shields.io/badge/Kotlin-2.0+-7F52FF?logo=kotlin&logoColor=white)
-![Compose](https://img.shields.io/badge/Jetpack--Compose-Latest-4285F4?logo=jetpackcompose&logoColor=white)
-![Material3](https://img.shields.io/badge/Material--3-UI-6750A4?logo=materialdesign&logoColor=white)
-![Sanctum](https://img.shields.io/badge/Auth-Sanctum-FF2D20?logo=laravel&logoColor=white)
-![MinSDK](https://img.shields.io/badge/Min--SDK-24-34A853?logo=android&logoColor=white)
+## 🏗️ Arsitektur: Jetpack Compose + REST Client
+
+Sistem ini menggunakan arsitektur modern Android dengan **Jetpack Compose** untuk UI deklaratif dan **Retrofit** untuk komunikasi REST API.
+- **UI Layer**: Jetpack Compose dengan Material Design 3 dan dark theme responsif.
+- **Network Layer**: Retrofit 2 + OkHttp dengan interceptor otomatis untuk Bearer token.
+- **Data Layer**: SharedPreferences per-user untuk penyimpanan lokal dan token management.
+
+### Implementasi API Service (Kotlin)
+Aplikasi menginisialisasi komunikasi REST melalui pola antarmuka Retrofit yang terstandarisasi.
+
+```kotlin
+interface ApiService {
+    @POST("api/login")
+    suspend fun login(@Body request: LoginRequest): Response<AuthResponse>
+
+    @POST("api/register")
+    suspend fun register(@Body request: RegisterRequest): Response<AuthResponse>
+
+    @POST("api/login/google")
+    suspend fun googleLogin(@Body request: GoogleLoginRequest): Response<AuthResponse>
+
+    @GET("api/history")
+    suspend fun getHistory(@Query("tipe") tipe: String): Response<HistoryResponse>
+
+    @POST("api/history")
+    suspend fun saveHistory(@Body request: SaveHistoryRequest): Response<SaveHistoryResponse>
+
+    @DELETE("api/history")
+    suspend fun clearHistory(): Response<MessageResponse>
+}
+```
 
 ---
 
-## 📋 Fitur Utama
+## 🔐 Autentikasi: Multi-Method Login
 
-| ID | Fitur | Deskripsi |
-|----|-------|-----------|
-| **FR-M01** | **Scientific Calculator** | Kalkulator ilmiah lengkap dengan operasi trigonometri, logaritma, dan fungsi memori (M+, M-, MR, MC). |
-| **FR-M02** | **2nd Function** | Toggle untuk mengakses fungsi invers (sin⁻¹, cos⁻¹, tan⁻¹, ln, e^x). |
-| **FR-M03** | **DEG/RAD Mode** | Pergantian antara mode Degree dan Radian untuk perhitungan trigonometri. |
-| **FR-M04** | **Unit Converter** | Konversi satuan 15 kategori: panjang, berat, suhu, kecepatan, luas, volume, dll. |
-| **FR-M05** | **Currency Converter** | Konversi 52 mata uang real-time dengan caching offline. |
-| **FR-M06** | **Login / Register** | Autentikasi username/password via REST API + Laravel Sanctum tokens. |
-| **FR-M07** | **Google Sign-In** | Login dengan akun Google via Credential Manager API + opsi tambah akun baru. |
-| **FR-M08** | **History Sync** | Riwayat per-user disinkronkan ke server via REST API. Guest menggunakan local storage. |
-| **FR-M09** | **Logout** | TopAppBar dengan profil dropdown, info user, dan dialog konfirmasi logout. |
-| **FR-M10** | **Dark Theme** | UI gelap modern Slate/Sky dengan Material 3 dan animasi halus. |
+Sistem autentikasi mendukung tiga metode masuk yang terintegrasi:
+
+| Metode | Implementasi | Alur |
+| :--- | :--- | :--- |
+| **Email/Password** | Retrofit REST call | Input → POST /api/login → Simpan token → Navigate Main |
+| **Google Sign-In** | Credential Manager API | Pilih akun → ID Token → POST /api/login/google → Simpan token |
+| **Guest Mode** | Skip authentication | Skip → Main Screen (riwayat di SharedPreferences only) |
+
+### Implementasi Token Interceptor
+Setiap request ke API secara otomatis menyertakan Bearer token melalui OkHttp interceptor.
+
+```kotlin
+// ApiClient.kt — Auto Token Injection
+val client = OkHttpClient.Builder()
+    .addInterceptor { chain ->
+        val token = TokenManager.getToken(context)
+        val request = chain.request().newBuilder()
+            .apply {
+                if (token != null) {
+                    addHeader("Authorization", "Bearer $token")
+                }
+            }
+            .build()
+        chain.proceed(request)
+    }
+    .build()
+```
+
+---
+
+## ⚙️ Setup & IP Configuration Guide
+
+Pengaturan alamat IP server merupakan langkah krusial dalam inisialisasi pengembangan lokal:
+
+1. **Android Emulator (AVD)**:
+    - Buka `ApiClient.kt`.
+    - Gunakan **Loopback IP**: `http://10.0.2.2:8080/`.
+2. **Physical Device (Physical HP)**:
+    - Masukkan **IP Local (LAN)** laptop Anda (Cek via `ipconfig` di CMD).
+    - Contoh: `http://192.168.1.5:8080/`.
+3. **Langkah Android Studio**:
+    - Buka proyek > **Gradle Sync**.
+    - Sambungkan perangkat > **Run 'app'** (`Shift + F10`).
+    - *Pastikan Laptop dan HP berada dalam jaringan WiFi yang identik.*
 
 ---
 
@@ -42,131 +101,3 @@ Aplikasi native Android untuk platform E-Concalc, dibangun dengan **Kotlin** dan
 | Kalkulator Ilmiah | Konverter Satuan | Konverter Mata Uang |
 | :---: | :---: | :---: |
 | <img src="docs/screenshots/04_calculator.png" width="220"> | <img src="docs/screenshots/05_converter.png" width="220"> | <img src="docs/screenshots/06_currency.png" width="220"> |
-
----
-
-## 🔗 REST API Endpoints
-
-Semua API dilindungi `auth:sanctum` (kecuali login/register):
-
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| `POST` | `/api/login` | Login (username + password) |
-| `POST` | `/api/register` | Register akun baru |
-| `POST` | `/api/login/google` | Login/Register via Google |
-| `POST` | `/api/logout` | Logout (revoke token) |
-| `GET` | `/api/user` | Info user saat ini |
-| `GET` | `/api/history?tipe=calc` | Ambil riwayat (filter: `calc`, `conv`, `currency`) |
-| `POST` | `/api/history` | Simpan riwayat baru |
-| `DELETE` | `/api/history` | Hapus semua riwayat |
-| `DELETE` | `/api/history/{id}` | Hapus riwayat tertentu |
-
----
-
-## 🚀 Panduan Instalasi
-
-### Prerequisites
-- **Android Studio** (Koala atau versi terbaru)
-- **JDK** 17+
-- **Android SDK** API 24+
-- **Backend server** Laravel berjalan di `http://10.0.2.2:8080/` (emulator) atau IP lokal (device fisik)
-
-### Langkah-langkah Setup
-
-1. **Clone & Open**: Buka folder `e-concalc-mobile` di Android Studio.
-    ```bash
-    git clone https://github.com/falcon-ioi/Caclcon.git
-    cd Caclcon/e-concalc-mobile
-    ```
-2. **Gradle Sync**: Jalankan proses *sync* Gradle dan tunggu hingga selesai.
-3. **Konfigurasi API** (opsional): Jika menggunakan device fisik, ubah `BASE_URL` di `ApiClient.kt`:
-    ```kotlin
-    private const val BASE_URL = "http://192.168.x.x:8080/"
-    ```
-4. **Build & Run**: Klik `Run` atau tekan `Shift + F10`.
-
----
-
-## 🏗️ Arsitektur & Struktur
-
-```
-e-concalc-mobile/
-├── app/src/main/
-│   ├── AndroidManifest.xml              # Permissions & config
-│   ├── res/xml/network_security_config.xml  # HTTP cleartext policy
-│   └── java/com/example/e_concalcmobile/
-│       ├── MainActivity.kt              # Entry point + TopAppBar + Logout
-│       ├── api/
-│       │   ├── ApiClient.kt             # Retrofit client + auth interceptor
-│       │   └── ApiService.kt            # API endpoints definition
-│       ├── navigation/
-│       │   └── Screen.kt                # Navigation routes (Splash/Login/Register/Main)
-│       ├── ui/screens/
-│       │   ├── SplashScreen.kt          # Auto-login check
-│       │   ├── LoginScreen.kt           # Login + Google Sign-In + Add account
-│       │   ├── RegisterScreen.kt        # Registration form
-│       │   ├── CalculatorScreen.kt      # Scientific Calculator + API sync
-│       │   ├── ConverterScreen.kt       # Unit Converter + history
-│       │   └── CurrencyScreen.kt        # Currency Converter + history
-│       ├── ui/theme/
-│       │   ├── Color.kt                 # Slate/Sky color palette
-│       │   ├── Theme.kt                 # Dark theme config
-│       │   └── Type.kt                  # Typography
-│       └── utils/
-│           ├── HistoryManager.kt        # Per-user history + API sync
-│           └── TokenManager.kt          # Auth token & user info management
-├── build.gradle.kts                      # Dependencies (Retrofit, Sanctum, etc.)
-├── settings.gradle.kts
-└── gradle/libs.versions.toml
-```
-
----
-
-## 🛠️ Tech Stack
-
-| Komponen | Teknologi |
-|----------|-----------|
-| **Language** | Kotlin 2.0+ |
-| **UI Framework** | Jetpack Compose + Material 3 |
-| **Navigation** | Compose Navigation |
-| **HTTP Client** | Retrofit 2 + OkHttp + Gson |
-| **Auth** | Laravel Sanctum (Bearer tokens) |
-| **Google Sign-In** | Credential Manager API + Google Identity |
-| **Icons** | Material Icons Extended |
-| **Local Storage** | SharedPreferences (per-user keys) |
-| **Min SDK** | Android 7.0 (API 24) |
-| **Target SDK** | Android 15 (API 35) |
-| **Build System** | Gradle 9.2 (Kotlin DSL) |
-
----
-
-## 🔄 Alur User & Guest
-
-```
-┌──────────────┐
-│  Splash Screen │
-│  (Token check) │
-└──────┬───────┘
-       │
-       ├── Token valid ──────► Main Screen (logged in)
-       │                         ├── Calculator + API sync
-       │                         ├── Converter + API sync
-       │                         └── Currency + API sync
-       │
-       └── No token ──────► Login Screen
-                              ├── Username/Password login
-                              ├── Google Sign-In
-                              ├── Add Google account
-                              ├── Register link
-                              └── Skip (Guest mode)
-                                    └── Main Screen (guest)
-                                          ├── Calculator (localStorage only)
-                                          ├── Converter (localStorage only)
-                                          └── Currency (localStorage only)
-```
-
----
-
-## 👨‍💻 Author
-
-Developed with ❤️ by **Falcon IOI**
