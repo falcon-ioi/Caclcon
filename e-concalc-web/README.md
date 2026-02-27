@@ -92,9 +92,14 @@ Semua interaksi API menggunakan JSON *payload* dan membutuhkan header `Authoriza
 ### 🔐 Auth
 | Login | Register |
 | :---: | :---: |
-| <img src="docs/screenshots/01_login.png" width="350"> | <img src="docs/screenshots/02_register.png" width="350"> |
+| <img src="../docs/images/Website/Login.png" width="350"> | <img src="../docs/images/Website/Register.png" width="350"> |
 
 ### 🧮 Fitur Utama
 | Kalkulator Ilmiah | Konverter Satuan | Konverter Mata Uang |
 | :---: | :---: | :---: |
-| <img src="docs/screenshots/03_calculator.png" width="250"> | <img src="docs/screenshots/04_converter.png" width="250"> | <img src="docs/screenshots/05_currency.png" width="250"> |
+| <img src="../docs/images/Website/Kalkulator Ilmiah.png" width="250"> | <img src="../docs/images/Website/Konverter Satuan.png" width="250"> | <img src="../docs/images/Website/Konverter Mata Uang.png" width="250"> |
+
+### 📜 Riwayat
+| Riwayat Perhitungan |
+| :---: |
+| <img src="../docs/images/Website/Riwayat.jpeg" width="400"> |

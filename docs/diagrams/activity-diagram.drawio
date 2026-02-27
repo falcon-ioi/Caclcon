@@ -1,0 +1,215 @@
+<mxfile host="app.diagrams.net" agent="Antigravity" version="26.0.0">
+  <diagram name="Activity Diagram" id="activity-econcalc">
+    <mxGraphModel dx="1422" dy="1050" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- ==================== START NODE ==================== -->
+        <mxCell id="2" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="385" y="15" width="30" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== ACTIVITIES & DECISIONS ==================== -->
+        <mxCell id="3" value="Buka Aplikasi E-Concalc" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D6E8FA;strokeColor=#2171B5;strokeWidth=1.5;fontSize=12;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="300" y="75" width="200" height="40" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="4" value="Login?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#D6E8FA;strokeColor=#2171B5;strokeWidth=1.5;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="355" y="150" width="90" height="65" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="5" value="Masukkan Kredensial&lt;br&gt;(Username/Password&lt;br&gt;atau Google OAuth)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D6E8FA;strokeColor=#2171B5;strokeWidth=1.5;fontSize=11;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="530" y="143" width="230" height="50" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="6" value="Valid?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#D6E8FA;strokeColor=#2171B5;strokeWidth=1.5;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="610" y="228" width="70" height="55" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="7" value="Tampilkan Pesan Error" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8D7DA;strokeColor=#C0392B;strokeWidth=1.5;fontSize=11;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="780" y="235" width="160" height="40" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="9" value="Tampilkan Halaman Utama" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D6E8FA;strokeColor=#2171B5;strokeWidth=1.5;fontSize=12;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="300" y="340" width="200" height="40" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="10" value="Pilih Fitur" style="rhombus;whiteSpace=wrap;html=1;fillColor=#D6E8FA;strokeColor=#2171B5;strokeWidth=1.5;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="340" y="420" width="120" height="65" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== KALKULATOR ILMIAH BRANCH ==================== -->
+        <mxCell id="11" value="Input Angka / Rumus" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5F5E3;strokeColor=#27AE60;strokeWidth=1.5;fontSize=11;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="25" y="540" width="190" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="12" value="Tekan = (Hitung)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5F5E3;strokeColor=#27AE60;strokeWidth=1.5;fontSize=11;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="25" y="610" width="190" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="13" value="Tampilkan Hasil Perhitungan" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5F5E3;strokeColor=#27AE60;strokeWidth=1.5;fontSize=11;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="25" y="680" width="190" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== KONVERTER SATUAN BRANCH ==================== -->
+        <mxCell id="14" value="Pilih Kategori &amp; Satuan" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCF3CF;strokeColor=#F39C12;strokeWidth=1.5;fontSize=11;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="305" y="540" width="190" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="15" value="Input Nilai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCF3CF;strokeColor=#F39C12;strokeWidth=1.5;fontSize=11;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="305" y="610" width="190" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="16" value="Tampilkan Hasil Konversi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCF3CF;strokeColor=#F39C12;strokeWidth=1.5;fontSize=11;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="305" y="680" width="190" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== KONVERTER MATA UANG BRANCH ==================== -->
+        <mxCell id="17" value="Pilih Mata Uang&lt;br&gt;Asal &amp; Tujuan" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EBE2F1;strokeColor=#8E44AD;strokeWidth=1.5;fontSize=11;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="575" y="540" width="220" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="18" value="Input Jumlah &amp;&lt;br&gt;Ambil Kurs dari API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EBE2F1;strokeColor=#8E44AD;strokeWidth=1.5;fontSize=11;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="575" y="610" width="220" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="19" value="Tampilkan Hasil Konversi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EBE2F1;strokeColor=#8E44AD;strokeWidth=1.5;fontSize=11;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="575" y="680" width="220" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== AFTER MERGE ==================== -->
+        <mxCell id="21" value="Simpan ke Riwayat" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D6E8FA;strokeColor=#2171B5;strokeWidth=1.5;fontSize=12;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="300" y="775" width="200" height="40" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="22" value="Gunakan&lt;br&gt;Fitur Lain?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#D6E8FA;strokeColor=#2171B5;strokeWidth=1.5;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="355" y="855" width="90" height="65" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== END NODE (double circle) ==================== -->
+        <mxCell id="23" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=none;strokeColor=#000000;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="382" y="960" width="36" height="36" as="geometry"/>
+        </mxCell>
+        <mxCell id="24" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="390" y="968" width="20" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- ==================== EDGES ==================== -->
+        <!-- Start -> Buka Aplikasi -->
+        <mxCell id="e1" style="endArrow=block;endFill=1;html=1;strokeColor=#333333;strokeWidth=1.5;" edge="1" source="2" target="3" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Buka Aplikasi -> Decision Login? -->
+        <mxCell id="e2" style="endArrow=block;endFill=1;html=1;strokeColor=#333333;strokeWidth=1.5;" edge="1" source="3" target="4" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Login? -> Ya -> Masukkan Kredensial -->
+        <mxCell id="e3" value="Ya" style="endArrow=block;endFill=1;html=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;fontStyle=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="4" target="5" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Login? -> Tidak (Guest) -> Halaman Utama -->
+        <mxCell id="e4" value="Tidak (Guest)" style="endArrow=block;endFill=1;html=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;fontStyle=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" source="4" target="9" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Masukkan Kredensial -> Decision Valid? -->
+        <mxCell id="e5" style="endArrow=block;endFill=1;html=1;strokeColor=#333333;strokeWidth=1.5;" edge="1" source="5" target="6" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Valid? -> Ya -> Halaman Utama -->
+        <mxCell id="e6" value="Ya" style="endArrow=block;endFill=1;html=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;fontStyle=1;exitX=0;exitY=1;exitDx=0;exitDy=0;" edge="1" source="6" target="9" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Valid? -> Tidak -> Error -->
+        <mxCell id="e7" value="Tidak" style="endArrow=block;endFill=1;html=1;strokeColor=#C0392B;strokeWidth=1.5;fontSize=11;fontStyle=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="6" target="7" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Error -> loop back to Masukkan Kredensial -->
+        <mxCell id="e8" style="endArrow=block;endFill=1;html=1;strokeColor=#C0392B;strokeWidth=1.5;curved=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="7" target="5" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Halaman Utama -> Decision Pilih Fitur -->
+        <mxCell id="e10" style="endArrow=block;endFill=1;html=1;strokeColor=#333333;strokeWidth=1.5;" edge="1" source="9" target="10" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Pilih Fitur -> Kalkulator -->
+        <mxCell id="e11" value="Kalkulator" style="endArrow=block;endFill=1;html=1;strokeColor=#27AE60;strokeWidth=1.5;fontSize=10;fontStyle=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="10" target="11" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Pilih Fitur -> Konverter Satuan -->
+        <mxCell id="e12" value="Konverter Satuan" style="endArrow=block;endFill=1;html=1;strokeColor=#F39C12;strokeWidth=1.5;fontSize=10;fontStyle=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" source="10" target="14" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Pilih Fitur -> Konverter Mata Uang -->
+        <mxCell id="e13" value="Konverter Mata Uang" style="endArrow=block;endFill=1;html=1;strokeColor=#8E44AD;strokeWidth=1.5;fontSize=10;fontStyle=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="10" target="17" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Kalkulator: Input -> Hitung -> Hasil -->
+        <mxCell id="e14" style="endArrow=block;endFill=1;html=1;strokeColor=#27AE60;strokeWidth=1.5;" edge="1" source="11" target="12" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e15" style="endArrow=block;endFill=1;html=1;strokeColor=#27AE60;strokeWidth=1.5;" edge="1" source="12" target="13" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Kalkulator Hasil -> Simpan Riwayat -->
+        <mxCell id="e16" style="endArrow=block;endFill=1;html=1;strokeColor=#27AE60;strokeWidth=1.5;" edge="1" source="13" target="21" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Konverter Satuan: Kategori -> Input -> Hasil -->
+        <mxCell id="e17" style="endArrow=block;endFill=1;html=1;strokeColor=#F39C12;strokeWidth=1.5;" edge="1" source="14" target="15" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e18" style="endArrow=block;endFill=1;html=1;strokeColor=#F39C12;strokeWidth=1.5;" edge="1" source="15" target="16" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Konverter Satuan Hasil -> Simpan Riwayat -->
+        <mxCell id="e19" style="endArrow=block;endFill=1;html=1;strokeColor=#F39C12;strokeWidth=1.5;" edge="1" source="16" target="21" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Konverter Mata Uang: Pilih -> Input -> Hasil -->
+        <mxCell id="e20" style="endArrow=block;endFill=1;html=1;strokeColor=#8E44AD;strokeWidth=1.5;" edge="1" source="17" target="18" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e21" style="endArrow=block;endFill=1;html=1;strokeColor=#8E44AD;strokeWidth=1.5;" edge="1" source="18" target="19" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Konverter Mata Uang Hasil -> Simpan Riwayat -->
+        <mxCell id="e22" style="endArrow=block;endFill=1;html=1;strokeColor=#8E44AD;strokeWidth=1.5;" edge="1" source="19" target="21" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Simpan Riwayat -> Decision Fitur Lain? -->
+        <mxCell id="e23" style="endArrow=block;endFill=1;html=1;strokeColor=#333333;strokeWidth=1.5;" edge="1" source="21" target="22" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Fitur Lain? -> Tidak -> End -->
+        <mxCell id="e24" value="Tidak" style="endArrow=block;endFill=1;html=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;fontStyle=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" source="22" target="23" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Fitur Lain? -> Ya -> loop back to Pilih Fitur -->
+        <mxCell id="e25" value="Ya" style="endArrow=block;endFill=1;html=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;fontStyle=1;curved=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="22" target="10" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="270" y="887"/>
+              <mxPoint x="270" y="452"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

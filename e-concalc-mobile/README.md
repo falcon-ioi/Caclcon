@@ -95,9 +95,9 @@ Pengaturan alamat IP server merupakan langkah krusial dalam inisialisasi pengemb
 ### 🔐 Auth & Navigasi
 | Login | Register | Riwayat |
 | :---: | :---: | :---: |
-| <img src="docs/screenshots/02_login.png" width="220"> | <img src="docs/screenshots/03_register.png" width="220"> | <img src="docs/screenshots/01_history.png" width="220"> |
+| <img src="../docs/images/Mobile/Login.png" width="220"> | <img src="../docs/images/Mobile/Register.png" width="220"> | <img src="../docs/images/Mobile/Riwayat.png" width="220"> |
 
 ### 🧮 Fitur Utama
 | Kalkulator Ilmiah | Konverter Satuan | Konverter Mata Uang |
 | :---: | :---: | :---: |
-| <img src="docs/screenshots/04_calculator.png" width="220"> | <img src="docs/screenshots/05_converter.png" width="220"> | <img src="docs/screenshots/06_currency.png" width="220"> |
+| <img src="../docs/images/Mobile/Kalkulator Ilmiah.png" width="220"> | <img src="../docs/images/Mobile/Konverter Satuan.png" width="220"> | <img src="../docs/images/Mobile/Konverter Mata Uang.png" width="220"> |

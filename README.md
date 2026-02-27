@@ -54,10 +54,12 @@ Sistem dirancang menggunakan metodologi orientasi objek dengan dokumentasi UML s
 
 | Diagram | Visualisasi | Deskripsi Teknis |
 | :--- | :---: | :--- |
-| **Use Case** | <img src="./docs/diagrams/usecase_diagram.png" width="300"> | Mendefinisikan interaksi antara Guest dan Authenticated User dengan sistem kalkulator, konverter, dan sinkronisasi. |
-| **Activity** | <img src="./docs/diagrams/activity_diagram.png" width="300"> | Menggambarkan alur kerja sistem mulai dari input kalkulator hingga sinkronisasi riwayat dan alur autentikasi. |
-| **Sequence** | <img src="./docs/diagrams/sequence_diagram.png" width="300"> | Menjelaskan urutan pertukaran pesan antar komponen untuk fungsi kalkulator dengan API sync. |
-| **ERD** | <img src="./docs/diagrams/erd_diagram.png" width="300"> | Struktur basis data logis yang menggambarkan relasi antar entitas users, riwayat, tokens, dan sessions. |
+| **Use Case** | <img src="./docs/diagrams/Usecase Diagram.png" width="300"> | Mendefinisikan interaksi antara Guest dan Authenticated User dengan sistem kalkulator, konverter, dan sinkronisasi. |
+| **Activity** | <img src="./docs/diagrams/Activity Diagram.png" width="300"> | Menggambarkan alur kerja sistem mulai dari input kalkulator hingga sinkronisasi riwayat dan alur autentikasi. |
+| **Sequence (Kalkulator)** | <img src="./docs/diagrams/Sequence Diagram Kalkulator Ilmiah.png" width="300"> | Menjelaskan urutan pertukaran pesan antar komponen untuk fungsi kalkulator ilmiah. |
+| **Sequence (Konverter)** | <img src="./docs/diagrams/Sequence Diagram Konverter Satuan.png" width="300"> | Menjelaskan urutan pertukaran pesan antar komponen untuk fungsi konverter satuan. |
+| **Sequence (Mata Uang)** | <img src="./docs/diagrams/Sequence Diagram Konverter Mata Uang.png" width="300"> | Menjelaskan urutan pertukaran pesan antar komponen untuk fungsi konverter mata uang. |
+| **ERD** | <img src="./docs/diagrams/ERD (Entity Relationship Diagram).png" width="300"> | Struktur basis data logis yang menggambarkan relasi antar entitas users, riwayat, tokens, dan sessions. |
 
 ---
 
